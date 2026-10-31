@@ -6,7 +6,7 @@ export function commands(send:(op:string,p:object)=>void,projectId:()=>string):P
  return {
  addProject:p=>queue('project.create',p),addBoqItem:p=>queue('boq.create',p),
  importBoqRows:(id,rows)=>{rows.forEach(r=>send('boq.create',{...r,projectId:id}));return {ok:true,count:rows.length}},
- saveDpr:(p,submit)=>queue('dpr.create',pid({...p,submit})),submitDpr:id=>queue('dpr.submit',{id}),dprAction:(id,act,note)=>queue('dpr.'+act,{id,note}),
+ saveDpr:(p,submit)=>queue('dpr.create',pid({...p,items:p.items.filter(i=>i.quantity>0),submit})),submitDpr:id=>queue('dpr.submit',{id}),dprAction:(id,act,note)=>queue('dpr.'+act,{id,note}),
  savePpc:(lines,submit,existingId)=>queue(existingId?'ppc.update':'ppc.create',pid({lines,submit,id:existingId})),ppcAction:(id,act,note)=>queue('ppc.'+act,{id,note}),updatePpcStatus:(id,status)=>send('ppc.'+({submitted:'submit',consultant_approved:'consultant_approve',client_approved:'owner_approve',disbursed:'disburse',rejected:'reject'} as any)[status],{id}),
  addMaterialReq:p=>queue('mr.create',pid(p)),mrAction:(id,act,p)=>queue('mr.'+act,{...p,id}),
  addVariationOrder:(p,submit)=>queue('vo.create',pid({...p,submit})),voAction:(id,act,note)=>queue('vo.'+act,{id,note}),

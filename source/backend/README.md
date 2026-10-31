@@ -1,1 +1,5 @@
 Online pilot uses private Postgres tables and narrowly scoped RPCs. Tokens are random and stored hashed server-side. Passwords use bcrypt server-side. Only company owner accounts are enabled online; the existing multi-role local demo stays unchanged. Every save checks the current revision and snapshots its predecessor. Cross-company IDs are derived from the validated session, never trusted from the request. Do not enable other roles until their read filtering and server-side workflow actions have dedicated tests. Free plan has no managed automatic backup; version history within this database is not disaster recovery.
+
+### Multi-role pilot
+
+`v2/001_core.sql` through `009_rpc.sql` install private, locked helpers. `010_activate.sql` disables legacy snapshot saves before opening reviewed action APIs. Build frontend with `npx vite build --config vite.v2.config.ts`. Keep original root demo intact. Publish the v2.html entry as index.html in the isolated release directory with its assets. Never publish database credentials, test adapters or database deployment scripts. See `v2/REMAINING.md` for verified scope and exclusions.
