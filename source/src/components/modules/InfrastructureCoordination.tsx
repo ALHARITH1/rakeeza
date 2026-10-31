@@ -17,7 +17,7 @@ interface InfrastructureCoordinationProps {
 }
 
 export const InfrastructureCoordination: React.FC<InfrastructureCoordinationProps> = ({ onOpenNewClashModal }) => {
-  const { utilityClashes, selectedProjectId, selectedProject } = usePlatform();
+  const { serverCommands, utilityClashes, selectedProjectId, selectedProject } = usePlatform();
   const projectClashes = utilityClashes.filter(c => c.projectId === selectedProjectId);
 
   const utilityNames: Record<string, { name: string; color: string }> = {
@@ -69,14 +69,14 @@ export const InfrastructureCoordination: React.FC<InfrastructureCoordinationProp
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
           <span className="text-xs text-slate-400 block font-medium">التحويلات المرورية المعتمدة من المرور والبلدية</span>
           <span className="text-xl font-bold font-mono text-emerald-400 mt-1 block">
-            100% معتمدة
+            {serverCommands?'غير موثق بالمنصة':'100% معتمدة'}
           </span>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
           <span className="text-xs text-slate-400 block font-medium">توثيق إثبات الحالة الفوتوغرافي (تجنب الغرامات)</span>
           <span className="text-xl font-bold font-mono text-sky-400 mt-1 block">
-            مكتمل ومؤرشف
+            {serverCommands?'غير موثق بالمنصة':'مكتمل ومؤرشف'}
           </span>
         </div>
       </div>

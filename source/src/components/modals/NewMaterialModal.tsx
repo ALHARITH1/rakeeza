@@ -12,11 +12,11 @@ const suppliers = [
 ];
 
 export const NewMaterialModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const { boqItems, selectedProjectId, selectedProject, addMaterialReq, materialRemaining, toast, openItem } = usePlatform();
+  const { serverCommands, boqItems, selectedProjectId, selectedProject, addMaterialReq, materialRemaining, toast, openItem } = usePlatform();
   const items = useMemo(() => boqItems.filter((b) => b.projectId === selectedProjectId), [boqItems, selectedProjectId]);
   const [boqId, setBoqId] = useState('');
   const [qty, setQty] = useState('');
-  const [supplier, setSupplier] = useState(suppliers[0]);
+  const [supplier, setSupplier] = useState(serverCommands?'':suppliers[0]);
   const [note, setNote] = useState('');
   const [err, setErr] = useState('');
   useEffect(() => { if (isOpen) { setBoqId(items[0]?.id ?? ''); setQty(''); setNote(''); setErr(''); } }, [isOpen, items]);
@@ -56,7 +56,7 @@ export const NewMaterialModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <input type="number" min={0} max={remaining} className={`${inputCls} font-mono text-left`} value={qty} onChange={(e) => setQty(e.target.value)} />
         </Field>
         <Field label="المورد المقترح">
-          <select className={inputCls} value={supplier} onChange={(e) => setSupplier(e.target.value)}>{suppliers.map((s) => <option key={s}>{s}</option>)}</select>
+          {serverCommands?<input required className={inputCls} aria-label="اسم المورد الفعلي" value={supplier} onChange={e=>setSupplier(e.target.value)}/>:(<select className={inputCls} value={supplier} onChange={(e) => setSupplier(e.target.value)}>{suppliers.map((s) => <option key={s}>{s}</option>)}</select>)}
         </Field>
         <Field label="ملاحظات (اختياري)"><textarea rows={2} className={inputCls} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
         <div className="flex justify-between text-xs bg-slate-950 border border-slate-800 rounded-lg p-3">

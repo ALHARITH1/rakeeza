@@ -23,7 +23,7 @@ export interface PpcDraftLine {
   previousQty: number; maxCurrent: number; currentQty: number; unitPrice: number;
 }
 
-type Result = { ok: true; id?: string } | { ok: false; error: string };
+export type Result = { ok: true; id?: string } | { ok: false; error: string };
 
 const ACCOUNTS_KEY = 'accounts:v4';
 const dbKey = (companyId: string) => `${DB_KEY}:${companyId}`;
@@ -36,7 +36,7 @@ const fmtTime = () => new Date().toTimeString().slice(0, 5);
 /* ================================================================== */
 /*  Context interface                                                  */
 /* ================================================================== */
-interface PlatformContextType {
+export interface PlatformContextType {
   // auth
   currentUser: AppUser | null;
   company: Company | null;
@@ -55,6 +55,7 @@ interface PlatformContextType {
   currentRole: UserRole;
   roleLabel: string;
   onlineMode: boolean;
+  serverCommands: boolean;
 
   // navigation
   selectedProjectId: ProjectId;
@@ -206,7 +207,7 @@ function loadDb(companyId: string): DB {
 /* ================================================================== */
 /*  Provider                                                           */
 /* ================================================================== */
-export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { accounts: Accounts; db: DB; onState: (db: DB, company: Company | null) => void; logout: () => void } }> = ({ children, online }) => {
+export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { accounts: Accounts; db: DB; onState: (db: DB, company: Company | null) => void; logout: () => void; fullRoles?: boolean; overrides?: Partial<PlatformContextType> } }> = ({ children, online }) => {
   const [accounts, setAccounts] = useState<Accounts>(() => online?.accounts ?? loadAccounts());
   // Session: kept for this tab only, unless the user ticked «تذكرني» (then kept on this device)
   const readSession = (): { userId: string; remember?: boolean } | null => {
@@ -315,7 +316,8 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
     return currentUser.projectIds.filter((id) => data.projects.some((p) => p.id === id));
   }, [currentUser, data.projects]);
 
-  const [selectedProjectIdState, setSelectedProjectId] = useState<ProjectId>('p1');
+  const [selectedProjectIdState, setSelectedProjectId] = useState<ProjectId>(()=>online?.fullRoles?(sessionStorage.getItem('rakeeza:project:'+online.accounts.users[0].id)||''):'p1');
+  useEffect(()=>{if(online?.fullRoles&&currentUser)sessionStorage.setItem('rakeeza:project:'+currentUser.id,selectedProjectIdState)},[selectedProjectIdState,currentUser?.id]);
   const selectedProjectId = allowedIds.includes(selectedProjectIdState) ? selectedProjectIdState : allowedIds[0] ?? '';
 
   /* ---------------- derived projects (computed KPIs) ---------------- */
@@ -342,7 +344,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
         ...p,
         contractValue,
         physicalProgress: physical,
-        plannedProgress: boqTotal > 0 ? planned : p.plannedProgress,
+        plannedProgress: online?.fullRoles ? 0 : (boqTotal > 0 ? planned : p.plannedProgress),
         financialProgress: contractValue > 0 ? Number(((certified / contractValue) * 100).toFixed(1)) : 0,
         activeWorkforce: workforce,
         activeEquipment: equipment
@@ -455,7 +457,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
   };
 
   const requestPasswordReset = (identifier: string) => {
-    if (online) return { ok: false, error: 'استعادة كلمة المرور الذاتية غير مفعلة بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'استعادة كلمة المرور الذاتية غير مفعلة بعد' };
     const u = findUser(identifier);
     if (!u) return { ok: false, error: 'لا يوجد حساب بهذا الجوال أو البريد' };
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -464,7 +466,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
   };
 
   const resetPassword = (identifier: string, code: string, newPassword: string): Result => {
-    if (online) return { ok: false, error: 'استعادة كلمة المرور الذاتية غير مفعلة بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'استعادة كلمة المرور الذاتية غير مفعلة بعد' };
     const u = findUser(identifier);
     if (!u || resetCodes.current[u.id] !== code.trim()) return { ok: false, error: 'رمز التحقق غير صحيح' };
     if (newPassword.length < 6) return { ok: false, error: 'كلمة المرور 6 أحرف على الأقل' };
@@ -495,7 +497,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
   const users = useMemo(() => accounts.users.filter((u) => u.companyId === currentUser?.companyId), [accounts, currentUser]);
 
   const inviteUser: PlatformContextType['inviteUser'] = (input) => {
-    if (online) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
     const den = deny('users.manage'); if (den) return den;
     if (!input.name.trim()) return { ok: false, error: 'الاسم مطلوب' };
     if (!/^05\d{8}$/.test(input.phone.trim())) return { ok: false, error: 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام' };
@@ -517,7 +519,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
   };
 
   const updateUser = (id: string, patch: Partial<AppUser>): Result => {
-    if (online) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
     const den = deny('users.manage'); if (den) return den;
     if (id === currentUser?.id && (patch.active === false || (patch.role && patch.role !== currentUser.role)))
       return { ok: false, error: 'لا يمكنك إيقاف حسابك أو تغيير دورك' };
@@ -1435,7 +1437,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
     customized: !!data.rolePermissions
   };
   const saveRolePermissions = (r: UserRole, tabs: string[], actions: Action[]): Result => {
-    if (online) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
     const den = deny('users.manage'); if (den) return den;
     if (!tabs.length) return { ok: false, error: 'اختر شاشة واحدة على الأقل لهذه الوظيفة' };
     mutate((d) => {
@@ -1448,7 +1450,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
     return { ok: true };
   };
   const resetRolePermissions = (): Result => {
-    if (online) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
     const den = deny('users.manage'); if (den) return den;
     mutate((d) => { delete d.rolePermissions; pushAudit(d, 'إرجاع الصلاحيات للوضع الافتراضي', 'permissions'); });
     return { ok: true };
@@ -1458,7 +1460,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
   /*  Reset demo data                                                    */
   /* ================================================================== */
   const resetDemoData = (): Result => {
-    if (online) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
+    if (online && !online.fullRoles) return { ok: false, error: 'هذه الخاصية متاحة في العرض التجريبي فقط؛ لم تُفعّل أدوار الموظفين على الخادم بعد' };
     const den = deny('data.reset'); if (den) return den;
     if (currentUser!.companyId !== DEMO_COMPANY_ID) {
       const fresh = emptyDb(currentUser!.companyId);
@@ -1516,7 +1518,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
     const mine = data.notifications.filter((n) => {
       const targeted = (n.toUserIds?.includes(currentUser.id)) || (n.toRoles?.includes(role) && (!n.projectId || allowedIds.includes(n.projectId)));
       return targeted && canAccessTab(role, n.targetTab);
-    }).map((n) => ({ ...n, isRead: n.readBy?.includes(currentUser.id) ?? false }));
+    }).map((n) => ({ ...n, isRead: (n.readBy?.includes(currentUser.id) ?? false) || reads.has(n.id) }));
     const alerts = derivedAlerts.filter((a) => canAccessTab(role, a.targetTab)).map((a) => ({ ...a, isRead: reads.has(a.id) }));
     return [...mine, ...alerts];
   }, [currentUser, role, data.notifications, data.notifReads, derivedAlerts, allowedIds]);
@@ -1613,10 +1615,10 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode; online?: { 
     checkIn, checkOut, requestLeave, requestAdvance, signTbt, reportHazard, leaveAction, advanceAction, hazardAction, setAttendance,
     addPtw, addLabTest, addUtilityClash, addEmergencyIncident, addSpoilsTicket, issueNcr, closeNcr, approveTransmittal, toggleGeoFence,
     addOnboardingWorker, importWorkers, assignWorker, addLeaveRequest, addDisciplinaryViolation, addSettlement,
-    onlineMode: !!online, resetDemoData, logAudit, kiosk, ensureKiosk, registerWorkerAttendance, rolePerms, saveRolePermissions, resetRolePermissions
+    serverCommands: !!online?.fullRoles, onlineMode: !!online && !online.fullRoles, resetDemoData, logAudit, kiosk, ensureKiosk, registerWorkerAttendance, rolePerms, saveRolePermissions, resetRolePermissions
   };
 
-  return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;
+  return <PlatformContext.Provider value={{...value,...online?.overrides}}>{children}</PlatformContext.Provider>;
 };
 
 export const usePlatform = () => {

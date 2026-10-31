@@ -9,18 +9,18 @@ interface NewPtwModalProps {
 }
 
 export const NewPtwModal: React.FC<NewPtwModalProps> = ({ isOpen, onClose }) => {
-  const { addPtw, selectedProject, setActiveTab } = usePlatform();
+  const { serverCommands, addPtw, selectedProject, setActiveTab } = usePlatform();
 
   const [type, setType] = useState<PermitToWork['type']>('deep_excavation');
-  const [location, setLocation] = useState('شارع التخصصي - تقاطع العروبة');
-  const [supervisor, setSupervisor] = useState('م. راشد الحربي');
-  const [safetyOfficer, setSafetyOfficer] = useState('م. طارق الزهراني');
+  const [location, setLocation] = useState('');
+  const [supervisor, setSupervisor] = useState('');
+  const [safetyOfficer, setSafetyOfficer] = useState('');
 
-  const [gasCheck, setGasCheck] = useState(true);
-  const [barriers, setBarriers] = useState(true);
-  const [cableDetected, setCableDetected] = useState(true);
-  const [flashing, setFlashing] = useState(true);
-  const [ppeGear, setPpeGear] = useState(true);
+  const [gasCheck, setGasCheck] = useState(false);
+  const [barriers, setBarriers] = useState(false);
+  const [cableDetected, setCableDetected] = useState(false);
+  const [flashing, setFlashing] = useState(false);
+  const [ppeGear, setPpeGear] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

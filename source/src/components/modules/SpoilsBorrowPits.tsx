@@ -17,10 +17,10 @@ export const SpoilsBorrowPits: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [ticketType, setTicketType] = useState<SpoilsAndBorrowTicket['type']>('spoils_dump');
-  const [truckPlate, setTruckPlate] = useState('ق ل ب 9021');
+  const [truckPlate, setTruckPlate] = useState('');
   const [volumeM3, setVolumeM3] = useState(24);
   const [weightTons, setWeightTons] = useState(38.4);
-  const [destination, setDestination] = useState('المرمى الرسمي لأمانة منطقة الرياض (السلي)');
+  const [destination, setDestination] = useState('');
 
   const projectTickets = spoilsTickets.filter(t => t.projectId === selectedProjectId);
 

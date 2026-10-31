@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Save, RotateCcw, Lock } from 'lucide-react';
 import { usePlatform } from '../../context/PlatformContext';
 import { UserRole } from '../../types';
-import { Action, roleLabels, roleDescriptions, tabLabels, TabId } from '../../store/permissions';
+import { Action, roleActions, roleLabels, roleDescriptions, tabLabels, TabId } from '../../store/permissions';
 import { Card, Btn, ConfirmDialog } from '../common/ui';
 
 export const actionLabels: Record<Action, string> = {
@@ -47,7 +47,7 @@ const allTabs = Object.keys(tabLabels) as TabId[];
 const allActions = Object.keys(actionLabels) as Action[];
 
 export const RolePermissionsEditor: React.FC = () => {
-  const { rolePerms, saveRolePermissions, resetRolePermissions, can, toast } = usePlatform();
+  const { serverCommands, rolePerms, saveRolePermissions, resetRolePermissions, can, toast } = usePlatform();
   const [role, setRole] = useState<UserRole>('project_manager');
   const [tabs, setTabs] = useState<string[]>([]);
   const [acts, setActs] = useState<Action[]>([]);
@@ -72,7 +72,7 @@ export const RolePermissionsEditor: React.FC = () => {
       </div>
       <p className="text-[11px] text-slate-400 mb-3">{roleDescriptions[role]} — أول شاشة مختارة تكون الصفحة الرئيسية للوظيفة.</p>
 
-      <fieldset disabled={!editable} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {serverCommands&&<p className="text-xs text-amber-300 mb-3">لا يمكن توسيع الإجراءات خارج نطاق الوظيفة المعتمد. الشاشات لا تمنح صلاحية بيانات أو اعتماد. حساب المدير التنفيذي ثابت.</p>}<fieldset disabled={!editable || (serverCommands && role==='executive_director')} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <div className="text-xs font-bold text-white mb-2">الشاشات المسموحة ({tabs.length})</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -90,7 +90,7 @@ export const RolePermissionsEditor: React.FC = () => {
           <div className="grid grid-cols-1 gap-1.5">
             {allActions.map((a) => (
               <label key={a} className={`flex items-center gap-2 text-xs p-2 rounded-lg border cursor-pointer ${acts.includes(a) ? 'border-sky-500/40 bg-sky-500/5 text-white' : 'border-slate-800 bg-slate-950 text-slate-400'}`}>
-                <input type="checkbox" checked={acts.includes(a)} disabled={role === 'executive_director' && a === 'users.manage'} onChange={() => toggle(acts, a, setActs)} />
+                <input type="checkbox" checked={acts.includes(a)} disabled={(serverCommands && !roleActions[role].includes(a)) || (role === 'executive_director' && a === 'users.manage')} onChange={() => toggle(acts, a, setActs)} />
                 <span>{actionLabels[a]}</span>
               </label>
             ))}

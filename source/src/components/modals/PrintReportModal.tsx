@@ -8,7 +8,7 @@ interface PrintReportModalProps {
 }
 
 export const PrintReportModal: React.FC<PrintReportModalProps> = ({ isOpen, onClose }) => {
-  const { selectedProject, boqItems, ppcs, dprs, selectedProjectId, company } = usePlatform();
+  const { serverCommands, selectedProject, boqItems, ppcs, dprs, selectedProjectId, company } = usePlatform();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -73,7 +73,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({ isOpen, onCl
           <div className="text-left font-mono text-xs text-slate-600">
             <div>التاريخ: {new Date().toLocaleDateString('ar-SA')}</div>
             <div>رقم التقرير: INFRA-REP-{new Date().getFullYear()}-089</div>
-            <div className="font-bold text-slate-900 mt-1">نسخة معتمدة ومختومة</div>
+            <div className="font-bold text-slate-900 mt-1">{serverCommands?'تقرير للعرض والمراجعة، غير موقع':'نسخة معتمدة ومختومة'}</div>
           </div>
         </div>
 

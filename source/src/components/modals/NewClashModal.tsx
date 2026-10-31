@@ -12,10 +12,10 @@ export const NewClashModal: React.FC<NewClashModalProps> = ({ isOpen, onClose })
   const { addUtilityClash, setActiveTab } = usePlatform();
 
   const [utilityType, setUtilityType] = useState<UtilityClash['utilityType']>('nwc_water_mains');
-  const [locationStreet, setLocationStreet] = useState('شارع التخصصي - تقاطع الملك عبدالعزيز');
+  const [locationStreet, setLocationStreet] = useState('');
   const [depthMeters, setDepthMeters] = useState(1.1);
-  const [stakeholderContact, setStakeholderContact] = useState('م. سامي الدوسري (شركة المياه الوطنية)');
-  const [protectionMeasures, setProtectionMeasures] = useState('الحفر اليدوي وتركيب صبة حماية خرسانية مبطنة بعوازل.');
+  const [stakeholderContact, setStakeholderContact] = useState('');
+  const [protectionMeasures, setProtectionMeasures] = useState('');
 
   if (!isOpen) return null;
 

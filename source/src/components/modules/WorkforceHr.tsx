@@ -34,6 +34,7 @@ import { EmptyState } from '../common/EmptyState';
 
 export const WorkforceHr: React.FC = () => {
   const { 
+    serverCommands,
     workers, 
     selectedProjectId, 
     selectedProject, 
@@ -353,7 +354,7 @@ export const WorkforceHr: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            {selectedProject.name} — من مباشرة العمل والتهيئة والعهد، والورديات والأوفرتايم، وحتى احتساب حقوق نهاية الخدمة (EOSB) والمخالصة النهائية
+            {serverCommands&&<p className="text-amber-300">المتاح: سجلات الموظفين والحضور والإجازات والسلف والمخالفات. مسير WPS والمخالصة القانونية النهائية غير مفعّلين؛ لم يجر تحويل أجور أو إرسال بيانات حكومية.</p>}{selectedProject.name} — من مباشرة العمل والتهيئة والعهد، والورديات والأوفرتايم، وحتى احتساب حقوق نهاية الخدمة (EOSB) والمخالصة النهائية
           </p>
         </div>
 
@@ -442,9 +443,9 @@ export const WorkforceHr: React.FC = () => {
           { key: 'onboarding', label: '2. المباشرة والعهد والتهيئة', icon: Briefcase },
           { key: 'attendance', label: '3. الحضور والورديات والأوفرتايم', icon: Clock },
           { key: 'leaves', label: '4. الإجازات وتذاكر السفر', icon: Plane },
-          { key: 'payroll', label: '5. مسيرات الأجور وحماية الأجور (WPS)', icon: DollarSign },
+          ...(!serverCommands?[{ key: 'payroll', label: '5. مسيرات الأجور وحماية الأجور (WPS)', icon: DollarSign }]:[]),
           { key: 'violations', label: '6. الجزاءات والمخالفات الميدانية', icon: ShieldAlert },
-          { key: 'eosb', label: '7. حاسبة ومخالصة حقوق نهاية الخدمة (EOSB)', icon: Scale }
+          ...(!serverCommands?[{ key: 'eosb', label: '7. حاسبة ومخالصة حقوق نهاية الخدمة (EOSB)', icon: Scale }]:[])
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;

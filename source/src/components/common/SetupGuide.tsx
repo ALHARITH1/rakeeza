@@ -4,7 +4,7 @@ import { usePlatform } from '../../context/PlatformContext';
 
 /** Step-by-step company setup for the admin. Each step opens the exact screen + form it needs. */
 export const SetupGuide: React.FC<{ compact?: boolean }> = ({ compact }) => {
-  const { onlineMode, can, company, allowedProjects, boqItems, workers, users, rolePerms, openItem, setActiveTab } = usePlatform();
+  const { serverCommands, onlineMode, can, company, allowedProjects, boqItems, workers, users, rolePerms, openItem, setActiveTab } = usePlatform();
   const key = `infraops:setup-hidden:${company?.id}`;
   const [hidden, setHidden] = useState(() => { try { return localStorage.getItem(key) === '1'; } catch { return false; } });
   if (!can('users.manage') || !company) return null;
@@ -17,7 +17,7 @@ export const SetupGuide: React.FC<{ compact?: boolean }> = ({ compact }) => {
     { t: 'المشاريع', d: 'أنشئ مشروع لما يكون عندك واحد', done: allowedProjects.length > 0, go: () => openItem('boq', 'new-project') },
     { t: 'جدول الكميات', d: 'بنود المشروع — يدوي أو من Excel', done: boqItems.length > 0, go: () => openItem('boq', allowedProjects.length ? 'import' : 'new-project') },
     { t: 'صلاحيات الوظائف', d: 'شاشات وأزرار كل وظيفة (اختياري)', done: rolePerms.customized, go: () => setActiveTab('security'), optional: true }
-  ].filter(s => !onlineMode || !['دعوة الفريق والأطراف', 'صلاحيات الوظائف'].includes(s.t));
+  ].filter(s => !(onlineMode || serverCommands) || !['دعوة الفريق والأطراف', 'صلاحيات الوظائف'].includes(s.t));
 
   const required = steps.filter((s) => !s.optional);
   const doneCount = required.filter((s) => s.done).length;

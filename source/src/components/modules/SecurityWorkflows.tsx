@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const SecurityWorkflows: React.FC = () => {
-  const { currentRole, roleLabel } = usePlatform();
+  const { serverCommands, currentRole, roleLabel } = usePlatform();
 
   const roles = (Object.keys(roleLabels) as UserRole[]).map((key) => ({ key, title: roleLabels[key], desc: roleDescriptions[key] }));
 
@@ -33,7 +33,7 @@ export const SecurityWorkflows: React.FC = () => {
       steps: [
         { step: '1', role: 'فريق الحصر الميداني', action: 'تجميع الكميات المعتمدة من التقارير اليومية (DPR)' },
         { step: '2', role: 'استشاري الإشراف', action: 'التدقيق الهندسي والموافقة على نسب الإنجاز' },
-        { step: '3', role: 'المالك والمدير التنفيذي', action: 'الاعتماد النهائي وإصدار أمر الدفع والتحويل البنكي' }
+        { step: '3', role: 'المالك والمدير التنفيذي', action: 'الاعتماد النهائي وتسجيل الصرف (لا يتم تحويل بنكي)' }
       ]
     }
   ];

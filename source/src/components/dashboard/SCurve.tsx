@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
+import {usePlatform} from '../../context/PlatformContext';
 import { Project } from '../../types';
 import { monthLabel } from '../../store/seed';
 
@@ -9,6 +10,7 @@ import { monthLabel } from '../../store/seed';
  * current BOQ-based physical progress).
  */
 export const SCurve: React.FC<{ project: Project; height?: number }> = ({ project, height = 240 }) => {
+  const {serverCommands}=usePlatform();
   const data = useMemo(() => {
     const s = new Date(project.startDate), e = new Date(project.endDate);
     const months: Date[] = [];
@@ -35,6 +37,9 @@ export const SCurve: React.FC<{ project: Project; height?: number }> = ({ projec
       return { month: monthLabel(m), planned: Number(logistic(end).toFixed(1)), actual: actual == null ? null : Number(actual.toFixed(1)) };
     });
   }, [project]);
+
+  if(serverCommands)return <div className="text-xs text-slate-400 p-3">الإنجاز الحالي من كميات BOQ المعتمدة: {project.physicalProgress}%. لا توجد سلسلة إنجاز تاريخية معتمدة أو خطة أساس محفوظة؛ الرسم التقريبي غير معروض في النسخة المتصلة.</div>;
+  if(serverCommands)return <div className="text-xs text-slate-400 p-3">الإنجاز الحالي من كميات BOQ المعتمدة: {project.physicalProgress}%. لا توجد سلسلة إنجاز تاريخية معتمدة أو خطة أساس محفوظة؛ الرسم التقريبي غير معروض في النسخة المتصلة.</div>;
 
   return (
     <div style={{ height }} dir="ltr" className="w-full">

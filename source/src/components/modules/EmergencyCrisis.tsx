@@ -18,12 +18,12 @@ export const EmergencyCrisis: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [type, setType] = useState<EmergencyIncident['type']>('accidental_utility_strike');
-  const [location, setLocation] = useState('طريق الملك عبدالعزيز - المقطع 03');
-  const [affectedService, setAffectedService] = useState('كابل اتصالات أرضي قديم');
-  const [description, setDescription] = useState('ظهور كابل غير موثق بالمخططات الرسمية أثناء حفر الخندق.');
-  const [actionsTaken, setActionsTaken] = useState('إيقاف الحفار فوراً وإشعار استشاري المشروع وممثل شركة الاتصالات.');
+  const [location, setLocation] = useState('');
+  const [affectedService, setAffectedService] = useState('');
+  const [description, setDescription] = useState('');
+  const [actionsTaken, setActionsTaken] = useState('');
   const [forceMajeure, setForceMajeure] = useState(false);
-  const [liability, setLiability] = useState('المقاول غير مسؤول قانونياً لعدم وجود الكابل بمخطط المرافق المعتمد.');
+  const [liability, setLiability] = useState('');
 
   const projectIncidents = emergencyIncidents.filter(i => i.projectId === selectedProjectId);
 

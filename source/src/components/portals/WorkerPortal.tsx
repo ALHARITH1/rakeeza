@@ -7,7 +7,7 @@ type Panel = null | 'leave' | 'advance' | 'hazard';
 
 /** Simple mobile-first portal: the worker sees only his own data */
 export const WorkerPortal: React.FC = () => {
-  const { myWorker, checkIn, checkOut, requestLeave, requestAdvance, signTbt, reportHazard, toolboxTalks, leaveRequests, advances, toast, selectedProject } = usePlatform();
+  const { serverCommands, myWorker, checkIn, checkOut, requestLeave, requestAdvance, signTbt, reportHazard, toolboxTalks, leaveRequests, advances, toast, selectedProject } = usePlatform();
   const [panel, setPanel] = useState<Panel>(null);
   const [inside, setInside] = useState(true);
   const [leave, setLeave] = useState({ type: 'annual' as const, startDate: '', endDate: '', reason: '' });
@@ -17,7 +17,7 @@ export const WorkerPortal: React.FC = () => {
 
   if (!myWorker) return <Card><div className="text-xs text-slate-300">حسابك غير مرتبط بسجل موظف. تواصل مع الموارد البشرية.</div></Card>;
   const w = myWorker;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = serverCommands ? new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()) : new Date().toISOString().slice(0, 10);
   const log = w.attendanceLog?.find((l) => l.date === today);
   const isSaudi = w.nationality.includes('سعودي');
   const tbts = toolboxTalks.filter((t) => t.projectId === w.projectId);
@@ -34,17 +34,17 @@ export const WorkerPortal: React.FC = () => {
 
       {/* Attendance */}
       <Card title={<><MapPin className="w-4 h-4 text-emerald-400" /> الحضور والانصراف — <bdi dir="ltr">{today}</bdi></>}>
-        <label className="flex items-center gap-2 text-[11px] text-slate-300 mb-3">
+        {serverCommands ? <p className="text-xs text-slate-400 mb-3">يطلب المتصفح موقعًا حديثًا. يحسب الخادم المسافة والدقة. الموقع من المتصفح وليس ضمانًا ضد تزييف GPS. راقب تأكيد الخادم أعلى الصفحة.</p> : <label className="flex items-center gap-2 text-[11px] text-slate-300 mb-3">
           <input type="checkbox" checked={inside} onChange={(e) => setInside(e.target.checked)} />
           موقعي الحالي داخل النطاق الجغرافي للمشروع (يُحدد تلقائياً عبر GPS في تطبيق الجوال)
-        </label>
+        </label>}
         <div className="grid grid-cols-2 gap-2">
           <Btn variant="success" className="py-4 text-sm" disabled={!!log?.checkIn} icon={<LogIn className="w-5 h-5" />}
-            onClick={() => { const r = checkIn(inside); toast(r.ok ? 'تم تسجيل الحضور' : r.error, r.ok ? 'success' : 'error'); }}>
+            onClick={() => { const r = checkIn(inside); toast(r.ok ? (serverCommands ? 'جارٍ طلب الموقع وتأكيد الخادم' : 'تم تسجيل الحضور') : r.error, r.ok ? 'success' : 'error'); }}>
             {log?.checkIn ? <>حضور <bdi dir="ltr">{log.checkIn}</bdi></> : 'تسجيل حضور'}
           </Btn>
           <Btn variant="danger" className="py-4 text-sm" disabled={!log?.checkIn || !!log?.checkOut} icon={<LogOut className="w-5 h-5" />}
-            onClick={() => { const r = checkOut(); toast(r.ok ? 'تم تسجيل الانصراف' : r.error, r.ok ? 'success' : 'error'); }}>
+            onClick={() => { const r = checkOut(); toast(r.ok ? (serverCommands ? 'جارٍ طلب الموقع وتأكيد الخادم' : 'تم تسجيل الانصراف') : r.error, r.ok ? 'success' : 'error'); }}>
             {log?.checkOut ? <>انصراف <bdi dir="ltr">{log.checkOut}</bdi></> : 'تسجيل انصراف'}
           </Btn>
         </div>

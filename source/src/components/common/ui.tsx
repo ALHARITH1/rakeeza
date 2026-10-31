@@ -162,7 +162,7 @@ export const WorkflowStepper: React.FC<{ steps: string[]; current: number; rejec
 
 export const History: React.FC<{ items: WorkflowStep[] }> = ({ items }) => (
   <ul className="space-y-1.5">
-    {items.map((h, i) => (
+    {(items??[]).map((h, i) => (
       <li key={i} className="flex gap-2 text-[11px]">
         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
         <div>

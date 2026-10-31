@@ -16,7 +16,7 @@ const headerMap: Record<string, keyof Row> = {
 };
 
 export const BoqActions: React.FC = () => {
-  const { can, addProject, addBoqItem, importBoqRows, selectedProjectId, selectedProject, toast, focus, openItem } = usePlatform();
+  const { serverCommands, can, addProject, addBoqItem, importBoqRows, selectedProjectId, selectedProject, toast, focus, openItem } = usePlatform();
   React.useEffect(() => {
     if (focus?.tab !== 'boq') return;
     if (focus.id === 'new-project') setModal('project');
@@ -26,7 +26,7 @@ export const BoqActions: React.FC = () => {
   const [modal, setModal] = useState<null | 'project' | 'item' | 'import'>(null);
   const [err, setErr] = useState('');
   const today = new Date().toISOString().slice(0, 10);
-  const [p, setP] = useState({ name: '', code: '', client: '', consultant: '', location: '', startDate: today, endDate: '' });
+  const [p, setP] = useState({ name: '', code: '', client: '', consultant: '', location: '', startDate: today, endDate: '',lat: '',lng: '' });
   const [it, setIt] = useState({ code: '', description: '', unit: 'م.ط', contractQty: '', unitPrice: '', cbsCategory: 'civil' as BoqItem['cbsCategory'] });
   const [rows, setRows] = useState<Row[]>([]);
   const [fileName, setFileName] = useState('');
@@ -74,7 +74,7 @@ export const BoqActions: React.FC = () => {
       {can('boq.edit') && selectedProjectId && <Btn variant="ghost" icon={<FileUp className="w-3.5 h-3.5 text-emerald-400" />} onClick={() => setModal('import')}>استيراد من Excel</Btn>}
 
       <Modal open={modal === 'project'} onClose={close} title="مشروع جديد"
-        footer={<><Btn variant="ghost" onClick={close}>إلغاء</Btn><Btn onClick={() => { setErr(''); const r = addProject(p); if (!r.ok) setErr(r.error); else { toast('تم إنشاء المشروع — الخطوة التالية: بنود جدول الكميات'); close(); setP({ ...p, name: '', code: '' }); setTimeout(() => openItem('boq', 'import'), 50); } }}>إنشاء</Btn></>}>
+        footer={<><Btn variant="ghost" onClick={close}>إلغاء</Btn><Btn onClick={() => { setErr(''); const r = addProject({...p,lat:p.lat?Number(p.lat):undefined,lng:p.lng?Number(p.lng):undefined}); if (!r.ok) setErr(r.error); else { toast('تم إنشاء المشروع — الخطوة التالية: بنود جدول الكميات'); close(); setP({ ...p, name: '', code: '' }); setTimeout(() => openItem('boq', 'import'), 50); } }}>إنشاء</Btn></>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="اسم المشروع" className="sm:col-span-2"><input className={inputCls} value={p.name} onChange={(e) => setP({ ...p, name: e.target.value })} /></Field>
           <Field label="رمز المشروع (يظهر في أرقام المستندات)" hint="مثال: NEOM أو RYD2"><input className={inputCls} dir="ltr" value={p.code} onChange={(e) => setP({ ...p, code: e.target.value.toUpperCase().slice(0, 6) })} /></Field>
@@ -83,6 +83,7 @@ export const BoqActions: React.FC = () => {
           <Field label="الاستشاري"><input className={inputCls} value={p.consultant} onChange={(e) => setP({ ...p, consultant: e.target.value })} /></Field>
           <Field label="تاريخ البداية"><input type="date" className={inputCls} value={p.startDate} onChange={(e) => setP({ ...p, startDate: e.target.value })} /></Field>
           <Field label="تاريخ النهاية التعاقدي"><input type="date" className={inputCls} value={p.endDate} onChange={(e) => setP({ ...p, endDate: e.target.value })} /></Field>
+        {serverCommands&&<><Field label="خط العرض لمركز نطاق الحضور"><input required aria-label="خط عرض المشروع" type="number" min="-90" max="90" step="any" className={inputCls} value={p.lat} onChange={e=>setP({...p,lat:e.target.value})}/></Field><Field label="خط الطول لمركز نطاق الحضور"><input required aria-label="خط طول المشروع" type="number" min="-180" max="180" step="any" className={inputCls} value={p.lng} onChange={e=>setP({...p,lng:e.target.value})}/></Field><p>بدون إحداثيات لن يعمل الحضور بالموقع حتى يحددها المدير. النطاق ٦٥٠ مترًا.</p></>}
         </div>
         <p className="text-[11px] text-slate-400 mt-3">قيمة العقد تُحسب تلقائياً = مجموع البنود + أوامر التغيير المعتمدة.</p>
         {err && <div className="text-xs text-rose-400 mt-2" role="alert">{err}</div>}

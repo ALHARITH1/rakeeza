@@ -1,3 +1,4 @@
+import {VariationOrders} from './components/modules/VariationOrders';
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -72,7 +73,7 @@ const Toasts: React.FC = () => {
 };
 
 export function MainApp() {
-  const { onlineMode, activeTab, currentUser, canTab, allowedProjects, setActiveTab: setTab } = usePlatform();
+  const { serverCommands, onlineMode, activeTab, currentUser, canTab, allowedProjects, setActiveTab: setTab } = usePlatform();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDprModalOpen, setIsDprModalOpen] = useState(false);
   const [isPtwModalOpen, setIsPtwModalOpen] = useState(false);
@@ -89,7 +90,7 @@ export function MainApp() {
     return () => window.removeEventListener('hashchange', h);
   }, []);
 
-  if (kioskOpen && onlineMode) return <div dir="rtl" className="p-8 text-white bg-slate-950 min-h-screen">بوابة الحضور متاحة في العرض التجريبي فقط. <button onClick={() => {window.location.hash='';setKioskOpen(false)}}>العودة</button></div>;
+  if (kioskOpen && (onlineMode || serverCommands)) return <div dir="rtl" className="p-8 text-white bg-slate-950 min-h-screen">بوابة الحضور متاحة في العرض التجريبي فقط. <button onClick={() => {window.location.hash='';setKioskOpen(false)}}>العودة</button></div>;
   if (kioskOpen) return <AttendanceKiosk onBackToApp={() => { window.location.hash = currentUser ? 'team' : ''; setKioskOpen(false); }} />;
   if (!currentUser) {
     const go = (h: string) => { window.location.hash = h; window.scrollTo({ top: 0 }); };
@@ -114,7 +115,7 @@ export function MainApp() {
     spoils: <SpoilsBorrowPits />,
     emergency: <EmergencyCrisis />,
     dms: <DocumentArchive />,
-    tendering: <TenderingRisk />,
+    tendering: serverCommands ? <VariationOrders /> : <TenderingRisk />,
     crm: <CrmStakeholders />,
     security: <SecurityWorkflows />,
     company: <CompanyBrand />,
@@ -146,7 +147,7 @@ export function MainApp() {
           <div className="max-w-7xl mx-auto space-y-4 min-w-0">
             <Breadcrumbs />
             {!(needsProject && allowedProjects.length === 0) && <SetupGuide />}
-            {onlineMode && ['users','security'].includes(activeTab) ? (<section dir="rtl" className="p-6 text-amber-300 border border-amber-600 rounded-lg">دعوة الموظفين وصلاحيات بقية الأدوار لم تُفعّل على الخادم بعد. استخدم العرض التجريبي لاستكشافها فقط، وليس لإضافة حسابات فعلية.</section>) : !canTab(activeTab) ? (
+            {serverCommands && ['training','handover','dms','crm','journey'].includes(activeTab) ? (<section dir="rtl" className="p-6 border border-amber-500 rounded">هذه الوحدة غير مفعلة في الإصدار المتصل؛ بياناتها التفصيلية وأزرار مستنداتها في العرض التجريبي فقط. إنشاء محاضرات TBT وتوقيع العامل متاحان من لوحة الحساب وبوابة العامل. لم يتم إرسال طلبات أو وثائق لأي جهة خارجية.</section>) : serverCommands && activeTab==='users' ? (<section dir="rtl" className="p-6 border border-amber-500 rounded">استخدم لوحة «الحساب والنسخ والدعوات» أعلى الصفحة لإنشاء دعوة آمنة أو إيقاف مستخدم.</section>) : onlineMode && ['users','security'].includes(activeTab) ? (<section dir="rtl" className="p-6 text-amber-300 border border-amber-600 rounded-lg">دعوة الموظفين وصلاحيات بقية الأدوار لم تُفعّل على الخادم بعد. استخدم العرض التجريبي لاستكشافها فقط، وليس لإضافة حسابات فعلية.</section>) : !canTab(activeTab) ? (
               <NoAccess />
             ) : needsProject && allowedProjects.length === 0 ? (
               canTab('boq') ? (

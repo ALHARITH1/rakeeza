@@ -21,10 +21,10 @@ export const QualityControl: React.FC = () => {
   // New Lab test inline modal
   const [showNewTestModal, setShowNewTestModal] = useState(false);
   const [testType, setTestType] = useState<LabTest['testType']>('soil_compaction');
-  const [sampleLocation, setSampleLocation] = useState('شارع التخصصي - محطة 04+100');
-  const [requiredVal, setRequiredVal] = useState('≥ 95% Modified Proctor');
-  const [achievedVal, setAchievedVal] = useState('96.4%');
-  const [labName, setLabName] = useState('مختبر التربة والمواد المتطورة (FUGRO)');
+  const [sampleLocation, setSampleLocation] = useState('');
+  const [requiredVal, setRequiredVal] = useState('');
+  const [achievedVal, setAchievedVal] = useState('');
+  const [labName, setLabName] = useState('');
 
   const projectNcrs = ncrs.filter(n => n.projectId === selectedProjectId);
   const projectTests = labTests.filter(t => t.projectId === selectedProjectId);
