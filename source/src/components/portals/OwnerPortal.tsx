@@ -1,3 +1,4 @@
+import {ModuleHub} from '../../ModuleHub';
 import React, { useEffect, useState } from 'react';
 import { Landmark, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
 import { usePlatform } from '../../context/PlatformContext';
@@ -9,7 +10,7 @@ import { VoDetail } from '../modules/VariationOrders';
 
 /** Owner (client) view: progress & approvals only — no internal costs, salaries or CBS */
 export const OwnerPortal: React.FC = () => {
-  const { selectedProject: p, ppcs, variationOrders, selectedProjectId, focus } = usePlatform();
+  const { serverCommands, selectedProject: p, ppcs, variationOrders, selectedProjectId, focus } = usePlatform();
   const [open, setOpen] = useState<{ kind: 'ppc' | 'vo'; id: string } | null>(null);
   useEffect(() => {
     if (focus?.tab === 'owner_portal') setOpen({ kind: ppcs.some((x) => x.id === focus.id) ? 'ppc' : 'vo', id: focus.id });
@@ -26,7 +27,7 @@ export const OwnerPortal: React.FC = () => {
   return (
     <div className="space-y-4">
       <PageHeader icon={<Landmark className="w-5 h-5 text-amber-400" />} title="بوابة المالك" subtitle={`${p.name} — ${p.client}`} />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {serverCommands&&<ModuleHub kind="handover"/>}<div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card><div className="text-[11px] text-slate-400">الإنجاز الفعلي</div><div className="text-2xl font-black font-mono text-emerald-400" dir="ltr">{p.physicalProgress}%</div></Card>
         <Card><div className="text-[11px] text-slate-400">المخطط حتى اليوم</div><div className="text-2xl font-black font-mono text-sky-400" dir="ltr">{p.plannedProgress}%</div><div className={`text-[10px] ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`} dir="ltr">{delta >= 0 ? '+' : ''}{delta.toFixed(1)}%</div></Card>
         <Card><div className="text-[11px] text-slate-400">قيمة العقد</div><div className="text-lg font-black font-mono text-white" dir="ltr">{fmt(p.contractValue)}</div></Card>

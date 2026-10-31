@@ -1,3 +1,4 @@
+import {ModuleHub} from '../../ModuleHub';
 import { HrRequestsPanel, EmployeeProfile, probationPassed, idLabel } from './HrExtras';
 import { WorkersImport } from './WorkersImport';
 import React, { useState } from 'react';
@@ -354,7 +355,7 @@ export const WorkforceHr: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            {serverCommands&&<p className="text-amber-300">المتاح: سجلات الموظفين والحضور والإجازات والسلف والمخالفات. مسير WPS والمخالصة القانونية النهائية غير مفعّلين؛ لم يجر تحويل أجور أو إرسال بيانات حكومية.</p>}{selectedProject.name} — من مباشرة العمل والتهيئة والعهد، والورديات والأوفرتايم، وحتى احتساب حقوق نهاية الخدمة (EOSB) والمخالصة النهائية
+            {serverCommands&&<p className="text-amber-300">المسير والتسوية سجلات داخلية مع مراجعة واعتماد وإقرار. لا يجري تحويل أجور أو رفع حكومي أو إصدار توقيع رقمي معتمد.</p>}{selectedProject.name} — من مباشرة العمل والتهيئة والعهد، والورديات والأوفرتايم، وحتى احتساب حقوق نهاية الخدمة (EOSB) والمخالصة النهائية
           </p>
         </div>
 
@@ -443,9 +444,9 @@ export const WorkforceHr: React.FC = () => {
           { key: 'onboarding', label: '2. المباشرة والعهد والتهيئة', icon: Briefcase },
           { key: 'attendance', label: '3. الحضور والورديات والأوفرتايم', icon: Clock },
           { key: 'leaves', label: '4. الإجازات وتذاكر السفر', icon: Plane },
-          ...(!serverCommands?[{ key: 'payroll', label: '5. مسيرات الأجور وحماية الأجور (WPS)', icon: DollarSign }]:[]),
+          { key: 'payroll', label: '5. مسيرات الأجور وحماية الأجور (WPS)', icon: DollarSign },
           { key: 'violations', label: '6. الجزاءات والمخالفات الميدانية', icon: ShieldAlert },
-          ...(!serverCommands?[{ key: 'eosb', label: '7. حاسبة ومخالصة حقوق نهاية الخدمة (EOSB)', icon: Scale }]:[])
+          { key: 'eosb', label: '7. تسوية نهاية الخدمة والمراجعة', icon: Scale }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -762,7 +763,7 @@ export const WorkforceHr: React.FC = () => {
       )}
 
       {/* TAB 5: PAYROLL & WAGE PROTECTION (WPS) */}
-      {activeTab === 'payroll' && (
+      {serverCommands&&activeTab==='payroll'&&<ModuleHub kind="payroll"/>}{!serverCommands&&activeTab === 'payroll' && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-4 rounded-xl">
             <div>
@@ -871,7 +872,7 @@ export const WorkforceHr: React.FC = () => {
       )}
 
       {/* TAB 7: END OF SERVICE (EOSB) CALCULATOR & FINAL SETTLEMENT */}
-      {activeTab === 'eosb' && (
+      {serverCommands&&activeTab==='eosb'&&<ModuleHub kind="clearance"/>}{!serverCommands&&activeTab === 'eosb' && (
         <div className="space-y-6">
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">

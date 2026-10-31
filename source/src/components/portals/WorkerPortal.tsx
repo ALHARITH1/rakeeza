@@ -1,3 +1,4 @@
+import {LiveSharing,ModuleHub} from '../../ModuleHub';
 import React, { useState } from 'react';
 import { LogIn, LogOut, CalendarDays, Wallet, Receipt, Package, FileText, GraduationCap, AlertOctagon, MapPin, CheckCircle2 } from 'lucide-react';
 import { usePlatform } from '../../context/PlatformContext';
@@ -50,6 +51,7 @@ export const WorkerPortal: React.FC = () => {
         </div>
       </Card>
 
+      {serverCommands&&<><LiveSharing/><ModuleHub kind="training"/><ModuleHub kind="payroll"/><ModuleHub kind="clearance"/></>}
       {/* Quick actions */}
       <div className="grid grid-cols-3 gap-2">
         <Btn variant="ghost" className="py-4 flex-col" icon={<CalendarDays className="w-5 h-5 text-sky-400" />} onClick={() => { setPanel('leave'); setErr(''); }}>طلب إجازة</Btn>

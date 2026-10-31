@@ -1,3 +1,4 @@
+import {ModuleHub} from '../../ModuleHub';
 import React, { useEffect, useState } from 'react';
 import { Stamp, FileCheck2, Receipt, GitPullRequestDraft, MessageSquareText, FileWarning } from 'lucide-react';
 import { usePlatform } from '../../context/PlatformContext';
@@ -11,7 +12,7 @@ import { RfiDetail } from '../modules/RfiModule';
 type Kind = 'dpr' | 'ppc' | 'vo' | 'rfi';
 
 export const ConsultantPortal: React.FC = () => {
-  const { dprs, ppcs, variationOrders, rfis, selectedProjectId, selectedProject, focus, issueNcr, toast, transmittals, approveTransmittal } = usePlatform();
+  const { serverCommands, dprs, ppcs, variationOrders, rfis, selectedProjectId, selectedProject, focus, issueNcr, toast, transmittals, approveTransmittal } = usePlatform();
   const [open, setOpen] = useState<{ kind: Kind; id: string } | null>(null);
   const [ncr, setNcr] = useState({ open: false, description: '', location: '', rootCause: '' });
   useEffect(() => {
@@ -44,7 +45,7 @@ export const ConsultantPortal: React.FC = () => {
     <div className="space-y-4">
       <PageHeader icon={<Stamp className="w-5 h-5 text-sky-400" />} title="بوابة الاستشاري — قائمة الاعتمادات" subtitle={`${selectedProject.name} — ${total} عنصر بانتظار قرارك`}
         actions={<Btn variant="danger" icon={<FileWarning className="w-4 h-4" />} onClick={() => setNcr({ ...ncr, open: true })}>إصدار NCR</Btn>} />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {serverCommands&&<ModuleHub kind="handover"/>}<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Section icon={<FileCheck2 className="w-4 h-4 text-amber-400" />} title="تقارير ميدانية (اعتمدها مدير المشروع)" n={q.dpr.length}>
           {q.dpr.map((d) => <Row key={d.id} id={d.id} kind="dpr" code={d.reportNumber} title={d.sector} extra={<bdi dir="ltr" className="text-[11px] text-slate-400">{d.date}</bdi>} />)}
         </Section>

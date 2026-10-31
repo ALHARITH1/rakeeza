@@ -1,3 +1,4 @@
+import {ModuleHub,LiveSharing} from './ModuleHub';
 import {VariationOrders} from './components/modules/VariationOrders';
 /**
  * @license
@@ -103,27 +104,27 @@ export function MainApp() {
     boq: <BoqManagement />,
     dpr: <DailySiteOperations onOpenNewDprModal={() => setIsDprModalOpen(true)} />,
     ppc: <ProgressPayments />,
-    fleet: <EquipmentFleet />,
+    fleet: serverCommands?<ModuleHub kind="equipment"/>:<EquipmentFleet />,
     hr: <WorkforceHr />,
     hse: <HseSafety onOpenNewPtwModal={() => setIsPtwModalOpen(true)} />,
-    training: <TrainingReadiness />,
+    training: serverCommands?<ModuleHub kind="training"/>:<TrainingReadiness />,
     qaqc: <QualityControl />,
-    handover: <HandoverProtocols />,
+    handover: serverCommands?<ModuleHub kind="handover"/>:<HandoverProtocols />,
     procurement: <ProcurementInventory onOpenNewMaterialModal={() => setIsMaterialModalOpen(true)} />,
     subcontractors: <SubcontractorManagement />,
     utilities: <InfrastructureCoordination onOpenNewClashModal={() => setIsClashModalOpen(true)} />,
     spoils: <SpoilsBorrowPits />,
     emergency: <EmergencyCrisis />,
-    dms: <DocumentArchive />,
+    dms: serverCommands?<ModuleHub kind="document"/>:<DocumentArchive />,
     tendering: serverCommands ? <VariationOrders /> : <TenderingRisk />,
-    crm: <CrmStakeholders />,
+    crm: serverCommands?<ModuleHub kind="contact"/>:<CrmStakeholders />,
     security: <SecurityWorkflows />,
     company: <CompanyBrand />,
     users: <UsersInvitations />,
     audit: <AuditLog />,
     rfi: <RfiModule />,
     team: <TeamAttendance />,
-    journey: <UserJourneyMapTab />,
+    journey: serverCommands?<LiveSharing/>:<UserJourneyMapTab />,
     worker_portal: <WorkerPortal />,
     owner_portal: <OwnerPortal />,
     consultant_portal: <ConsultantPortal />,
@@ -147,7 +148,7 @@ export function MainApp() {
           <div className="max-w-7xl mx-auto space-y-4 min-w-0">
             <Breadcrumbs />
             {!(needsProject && allowedProjects.length === 0) && <SetupGuide />}
-            {serverCommands && ['training','handover','dms','crm','journey'].includes(activeTab) ? (<section dir="rtl" className="p-6 border border-amber-500 rounded">هذه الوحدة غير مفعلة في الإصدار المتصل؛ بياناتها التفصيلية وأزرار مستنداتها في العرض التجريبي فقط. إنشاء محاضرات TBT وتوقيع العامل متاحان من لوحة الحساب وبوابة العامل. لم يتم إرسال طلبات أو وثائق لأي جهة خارجية.</section>) : serverCommands && activeTab==='users' ? (<section dir="rtl" className="p-6 border border-amber-500 rounded">استخدم لوحة «الحساب والنسخ والدعوات» أعلى الصفحة لإنشاء دعوة آمنة أو إيقاف مستخدم.</section>) : onlineMode && ['users','security'].includes(activeTab) ? (<section dir="rtl" className="p-6 text-amber-300 border border-amber-600 rounded-lg">دعوة الموظفين وصلاحيات بقية الأدوار لم تُفعّل على الخادم بعد. استخدم العرض التجريبي لاستكشافها فقط، وليس لإضافة حسابات فعلية.</section>) : !canTab(activeTab) ? (
+            {serverCommands && activeTab==='users' ? (<section dir="rtl" className="p-6 border border-amber-500 rounded">استخدم لوحة «الحساب والنسخ والدعوات» أعلى الصفحة لإنشاء دعوة آمنة أو إيقاف مستخدم.</section>) : onlineMode && ['users','security'].includes(activeTab) ? (<section dir="rtl" className="p-6 text-amber-300 border border-amber-600 rounded-lg">دعوة الموظفين وصلاحيات بقية الأدوار لم تُفعّل على الخادم بعد. استخدم العرض التجريبي لاستكشافها فقط، وليس لإضافة حسابات فعلية.</section>) : !canTab(activeTab) ? (
               <NoAccess />
             ) : needsProject && allowedProjects.length === 0 ? (
               canTab('boq') ? (
