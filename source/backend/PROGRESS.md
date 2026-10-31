@@ -1,6 +1,6 @@
 # Connected pilot checkpoint, 2026-10-31
 
-Live backend installed and verified; frontend publishing in progress. Existing https://alharith1.github.io/rakeeza/ demo remains unchanged.
+Connected pilot published at https://alharith1.github.io/rakeeza/online/ and verified from the published URL. Existing https://alharith1.github.io/rakeeza/ demo remains unchanged.
 
 Prepared: private Postgres schema; bcrypt passwords; random hashed bearer sessions; company self-registration; executive-only online authority; separate online app and local demo; versioned saves with conflict rejection; explicit manual refresh to avoid erasing an in-progress form on another device; explicit saved/pending/error indicators; unsupported role invitations, role editor and public attendance disabled online. Online data never imported from the browser demo or persisted into its registry.
 
@@ -8,4 +8,4 @@ Local verification: TypeScript and production build pass. Disposable Postgres 14
 
 Live verification: schema installed on Supabase; SQL tests passed; live browser two-session flow and conflict recovery passed; anon Data API tests passed for company isolation, direct private table denial, forged/revoked tokens, missing registration fields and null revision rejection.
 
-Remaining before publishing: verify source and built assets contain no secrets; upload source/build to separate online path without touching the demo; inspect actual published pixels and login; remove test accounts. All non-executive roles remain demo-only. Self-service recovery/SMS verification not implemented. No automatic disaster-recovery backups on free plan. Not suitable for sensitive operational data until additional review.
+Publication checks complete: source and build scanned for secret indicators; original demo root entries verified byte-identical; source and online build added separately; desktop/mobile published pixels inspected; two-context registration, project creation, refresh persistence and conflict recovery passed on the published URL; test accounts and companies removed and count verified zero. All non-executive roles remain demo-only. Self-service recovery/SMS verification not implemented. No automatic disaster-recovery backups on free plan. Not suitable for sensitive operational data until additional review.
