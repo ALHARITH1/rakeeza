@@ -1,3 +1,7 @@
+## Scope note
+
+The test accounts and local demo information below describe the original demo only. They do not log in to the online connected platform. Current connected verification and limits are in backend/v3/RELEASE.md and backend/v2/REMAINING.md.
+
 # نتائج الاختبار الشامل — InfraOps Hub
 
 تم التشغيل آلياً (Playwright) على بيانات تجريبية جديدة.
