@@ -12,3 +12,5 @@ Before activation:
 - Recovery codes are user-held credentials, not verified SMS. Do not show or send them to anyone except the authenticated account holder in the platform. Test one-time recovery and key rotation.
 - Backups are sensitive private downloads, signed for same-company restoration; accounts and current permissions are not rewound. This does not replace full database disaster-recovery backups or recover lost hosting accounts. Test download/restore/tamper/wrong-company.
 - Review screenshots and keyboard/mobile forms. Do not put active invite/recovery secrets into screenshots shared outside the task.
+
+2026-10-31 22:04: activated after six real SQL suites, all-role render tests and separate-role DPR/PPC/MR browser workflow tests. Public API verified invites for all 11 nonexecutive roles and executive registration, binding and privilege denial; actual hosted UI verified recovery and backup restore. Fixtures removed (zero accounts at closeout). Legacy save now refuses all writes. This is a connected pilot with excluded modules listed in REMAINING.md, not a production-security certification.
