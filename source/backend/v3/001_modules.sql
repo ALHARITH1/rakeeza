@@ -22,11 +22,11 @@ create or replace function rakeeza_private.modules(t text,op text,p jsonb) retur
 declare a rakeeza_private.accounts:=rakeeza_private.actor(t);c rakeeza_private.companies;x rakeeza_private.module_records;f rakeeza_private.module_files;b jsonb;v jsonb;rows jsonb:='[]';k text:=p->>'kind';pid text:=p->>'projectId';r text:=a.profile->>'role';act text:=p->>'action';w jsonb;data bytea;status text;yearfrac numeric;startdate date;enddate date;anniversary date;salary numeric;amount numeric;ratio numeric;days int;
 begin
  select * into c from rakeeza_private.companies where id=a.company_id;
- if op not in('modules.list','modules.file.get','modules.location.list','modules.location.share','modules.location.stop') then perform 1 from rakeeza_private.companies where id=a.company_id for update;end if;
+ if op not in('modules.list','modules.file.get','modules.location.list','modules.location.share','modules.location.stop') then select * into c from rakeeza_private.companies where id=a.company_id for update;end if;
  if not rakeeza_private.rate_limit('modules:'||a.id::text,2400) then raise exception 'طلبات كثيرة';end if;
  if p is null or jsonb_typeof(p)<>'object' or octet_length(p::text)>3000000 then raise exception 'طلب غير صالح أو كبير';end if;
  if op='modules.list' then
-  for x in select * from rakeeza_private.module_records m where m.company_id=c.id and m.kind=k order by m.updated_at desc limit 1000 loop
+  for x in select * from rakeeza_private.module_records m where m.company_id=c.id and m.kind=k and rakeeza_private.module_access(a,m.kind,m.project_id,m.body) order by m.updated_at desc limit 1000 loop
    if rakeeza_private.module_access(a,x.kind,x.project_id,x.body) then rows:=rows||jsonb_build_array(jsonb_build_object('id',x.id,'kind',x.kind,'projectId',x.project_id,'body',x.body,'revision',x.revision,'createdAt',x.created_at,'updatedAt',x.updated_at,'files',(select coalesce(jsonb_agg(jsonb_build_object('id',mf.id,'filename',mf.filename,'mime',mf.mime,'size',octet_length(mf.bytes),'sha256',mf.sha256)),'[]') from rakeeza_private.module_files mf where mf.record_id=x.id)));end if;
   end loop;return jsonb_build_object('records',rows);
  elsif op='modules.file.get' then
@@ -69,14 +69,15 @@ begin
    select coalesce(jsonb_agg(jsonb_build_object('id',gen_random_uuid(),'title',rakeeza_private.text(sn,'title',1000),'closed',false)),'[]') into v from jsonb_array_elements(b->'snags') sn;b:=jsonb_set(b,'{snags}',v);
   end if;
   if k='payroll' and exists(select 1 from rakeeza_private.module_records mr where mr.company_id=c.id and mr.kind='payroll' and mr.body->>'workerId'=b->>'workerId' and mr.body->>'period'=b->>'period' and mr.id is distinct from x.id) then raise exception 'يوجد مسير لهذا الموظف في الشهر نفسه';end if;
-  if k='training' and ((b->>'trainingDate')::date>current_date or b->>'result' not in('passed','failed')) then raise exception 'تاريخ أو نتيجة تدريب غير صالحة';end if;
+  if k='training' and (b->>'trainingDate' is null or (b->>'trainingDate')::date>current_date or b->>'result' is null or b->>'result' not in('passed','failed')) then raise exception 'تاريخ أو نتيجة تدريب غير صالحة';end if;
   if k='contact' and coalesce(b->>'email','')<>'' and b->>'email' !~ '^[^ @]+@[^ @]+[.][^ @]+$' then raise exception 'بريد غير صالح';end if;
   if k='payroll' then
    if not rakeeza_private.valid_sa_iban(b->>'iban') then raise exception 'آيبان سعودي غير صالح؛ لا يتحقق النظام من اسم مالك الحساب';end if;
-   if b->>'period' !~ '^[0-9]{4}-(0[1-9]|1[0-2])$' then raise exception 'شهر غير صالح';end if;
+   if b->>'period' is null or b->>'period' !~ '^[0-9]{4}-(0[1-9]|1[0-2])$' then raise exception 'شهر غير صالح';end if;
    amount:=rakeeza_private.num(b,'basicSalary',0)+rakeeza_private.num(b,'housingAllowance',0)+rakeeza_private.num(b,'otherEarnings',0)-rakeeza_private.num(b,'deductions',0);if amount<0 then raise exception 'صافي الأجر سالب';end if;
    b:=b||jsonb_build_object('netPayable',round(amount,2),'officialWpsSubmitted',false,'moneyTransferred',false);
   elsif k='clearance' then
+   if b->>'lastWorkingDay' is null or w->>'joinDate' is null then raise exception 'تواريخ الخدمة مطلوبة';end if;
    days:=(b->>'lastWorkingDay')::date-(w->>'joinDate')::date+1;if days<1 then raise exception 'تواريخ الخدمة غير صالحة';end if;
    startdate:=(w->>'joinDate')::date;enddate:=(b->>'lastWorkingDay')::date+1;yearfrac:=extract(year from age(enddate,startdate));anniversary:=(startdate+make_interval(years=>yearfrac::int))::date;yearfrac:=yearfrac+(enddate-anniversary)::numeric/((anniversary+interval '1 year')::date-anniversary);salary:=rakeeza_private.num(b,'lastWage',0.01);amount:=salary*(least(yearfrac,5)/2+greatest(yearfrac-5,0));
    ratio:=case when b->>'reason'='resignation' then case when yearfrac<2 then 0 when yearfrac<=5 then 1.0/3 when yearfrac<10 then 2.0/3 else 1 end when b->>'reason' in('contract_expiry','employer_termination') then 1 else null end;
@@ -97,9 +98,10 @@ begin
   if op='modules.file.add' then
    if status not in('draft','approved','external_recorded') or (status='approved' and k<>'payroll') then raise exception 'الملف مقفل بعد رفع السجل؛ أنشئ سجلًا جديدًا للتعديل';end if;
    if not rakeeza_private.module_access(a,k,pid,b,true) then raise exception 'ليس لديك صلاحية';end if;
-   if (select coalesce(sum(octet_length(mf.bytes)),0) from rakeeza_private.module_files mf where mf.company_id=c.id)>50000000 then raise exception 'حد تخزين ملفات الشركة ٥٠ ميجابايت في هذا الإصدار';end if;
+   
    if p->>'mime' not in('application/pdf','image/jpeg','image/png','text/plain','text/csv') then raise exception 'صيغة غير مدعومة';end if;
    data:=decode(p->>'base64','base64');if octet_length(data)>2000000 or octet_length(data)<1 then raise exception 'الحد الأقصى للملف ٢ ميجابايت';end if;
+   if (select coalesce(sum(octet_length(mf.bytes)),0) from rakeeza_private.module_files mf where mf.company_id=c.id)+octet_length(data)>50000000 then raise exception 'حد تخزين ملفات الشركة ٥٠ ميجابايت في هذا الإصدار';end if;
    if p->>'mime'='application/pdf' and substring(data from 1 for 5)<>convert_to('%PDF-','UTF8') then raise exception 'ليس ملف PDF';end if;
    if p->>'mime'='image/jpeg' and encode(substring(data from 1 for 3),'hex')<>'ffd8ff' then raise exception 'ليس JPEG';end if;
    if p->>'mime'='image/png' and encode(substring(data from 1 for 8),'hex')<>'89504e470d0a1a0a' then raise exception 'ليس PNG';end if;
@@ -115,7 +117,7 @@ begin
    if status<>'submitted' then raise exception 'يلزم الرفع أولًا';end if;
    if not ((k in('document','equipment','contact','training') and rakeeza_private.module_access(a,k,pid,b,true)) or (k='handover' and r='consultant') or (k in('payroll','clearance') and r='executive_director')) then raise exception 'ليس لديك صلاحية اعتماد';end if;
    if k in('training','handover') and not exists(select 1 from rakeeza_private.module_files mf where mf.record_id=x.id) then raise exception 'أرفق دليل التدريب أو المعاينة قبل الاعتماد';end if;
-   if k='training' and b->>'result'<>'passed' then raise exception 'لا شهادة اجتياز لنتيجة غير ناجحة';end if;
+   if k='training' and b->>'result' is distinct from 'passed' then raise exception 'لا شهادة اجتياز لنتيجة غير ناجحة';end if;
    if k='clearance' and length(coalesce(b->>'legalReviewNotes',''))<10 then raise exception 'دوّن أساس المراجعة القانونية قبل الاعتماد';end if;
    if k='handover' and exists(select 1 from jsonb_array_elements(coalesce(b->'snags','[]')) sn where sn->>'closed'<>'true') then raise exception 'توجد ملاحظات مفتوحة';end if;
    b:=b||jsonb_build_object('status','approved','approvedBy',a.id,'approvedAt',now());
