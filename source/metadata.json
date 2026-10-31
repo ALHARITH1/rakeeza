@@ -1,0 +1,8 @@
+{
+  "name": "Remix منصة إدارة عمليات المقاولات والبنية التحتية | InfraOps Hub",
+  "description": "نظام تشغيلي متكامل وشامل لإدارة عمليات المقاولات والمشاريع الميدانية والبنية التحتية من المناقصات حتى التسليم النهائي",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

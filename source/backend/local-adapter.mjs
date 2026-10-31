@@ -1,0 +1,4 @@
+import pg from 'pg';import http from 'node:http';
+const db=new pg.Pool({host:'/tmp',port:55432,user:'sandbox',database:'postgres'});
+const args={rakeeza_auth:['action','phone','password','profile'],rakeeza_snapshot:['token'],rakeeza_save:['token','expected_revision','data','profile'],rakeeza_logout:['token']};
+http.createServer(async(req,res)=>{res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Headers','*');if(req.method==='OPTIONS'){res.end();return}try{let raw='';for await(const chunk of req)raw+=chunk;const name=req.url.split('/').pop();if(!args[name])throw Error('invalid');let input=JSON.parse(raw);const out=await db.query(`select public.${name}(${args[name].map((_,i)=>'$'+(i+1)).join(',')}) as data`,args[name].map(k=>input[k]??null));res.setHeader('Content-Type','application/json');res.end(JSON.stringify(out.rows[0].data))}catch(e){res.statusCode=400;res.end(JSON.stringify({message:e.message}))}}).listen(3092);

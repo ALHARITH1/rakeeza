@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFRAOPS HUB - منصة إدارة عمليات المقاولات والبنية التحتية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Cairo & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            amber: '#f59e0b',
+                            emerald: '#10b981',
+                            rose: '#f43f5e'
+                        },
+                        darkbg: {
+                            base: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-cairo antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Main Header -->
+    <header class="bg-slate-800 border-b border-slate-700/80 sticky top-0 z-30 px-4 py-2.5 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <!-- Mobile Menu Toggle Button -->
+            <button id="toggleMobileSidebar" class="lg:hidden text-slate-300 hover:text-white p-2 rounded-lg bg-slate-700/50">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-sky-500/20 font-black text-xl">
+                    <i class="fa-solid fa-helmet-safety"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-lg text-white tracking-wide block leading-tight">INFRAOPS <span class="text-sky-400">HUB</span></span>
+                    <span class="text-[11px] text-slate-400 font-medium">منصة إدارة عمليات البنية التحتية والمقاولات</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Actions & Profile -->
+        <div class="flex items-center gap-3">
+            <!-- Active Project Badge Selector -->
+            <div class="hidden md:flex items-center gap-2 bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-slate-400">المشروع النشط:</span>
+                <select id="headerProjectSelect" onchange="switchProjectContext(this.value)" class="bg-transparent text-sky-400 font-bold focus:outline-none cursor-pointer">
+                    <option value="p1" class="bg-slate-800 text-white">مشروع تمديد كابلات الجهد المتوسط - الرياض (القطاع 4)</option>
+                    <option value="p2" class="bg-slate-800 text-white">مشروع إنارة وإعادة تأهيل طرق المجمعة</option>
+                    <option value="p3" class="bg-slate-800 text-white">مشروع شبكة الألياف الضوئية FTTH - جدة</option>
+                </select>
+            </div>
+
+            <!-- Quick Action Button -->
+            <button onclick="openModal('modal-new-dpr')" class="hidden sm:flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-md shadow-sky-600/30">
+                <i class="fa-solid fa-plus"></i>
+                <span>تقرير ميداني جديد</span>
+            </button>
+
+            <!-- Notifications -->
+            <div class="relative">
+                <button onclick="toggleNotifications()" class="p-2 rounded-lg bg-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700 relative">
+                    <i class="fa-regular fa-bell text-base"></i>
+                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-800"></span>
+                </button>
+                <!-- Notification Popup -->
+                <div id="notificationMenu" class="hidden absolute left-0 mt-2 w-80 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-3 z-50 animate-fadeIn">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-700 mb-2">
+                        <span class="font-bold text-xs text-slate-200">التنبيهات الإشعارية (3)</span>
+                        <span class="text-[10px] text-sky-400 cursor-pointer">تحديد الكل كتقروء</span>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2 bg-slate-700/40 rounded-lg border-r-2 border-amber-500">
+                            <p class="font-semibold text-slate-200">طلب تصريح حفر (PTW)</p>
+                            <p class="text-[10px] text-slate-400">بانتظار موافقة مهندس السلامة - الشارع الرئيسي</p>
+                        </div>
+                        <div class="p-2 bg-slate-700/40 rounded-lg border-r-2 border-emerald-500">
+                            <p class="font-semibold text-slate-200">اعتماد مستخلص المالك رقم #04</p>
+                            <p class="text-[10px] text-slate-400">تم اعتماد صافي مبلغ 1,245,000 ر.س</p>
+                        </div>
+                        <div class="p-2 bg-slate-700/40 rounded-lg border-r-2 border-rose-500">
+                            <p class="font-semibold text-slate-200">صيانة طارئة - حفار CAT #12</p>
+                            <p class="text-[10px] text-slate-400">تجاوز ساعات تشغيل المحرك 500 ساعة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="flex items-center gap-2 pr-2 border-r border-slate-700">
+                <div class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-xs font-bold text-sky-400">
+                    م.ع
+                </div>
+                <div class="hidden xl:block text-right">
+                    <div class="text-xs font-bold text-slate-200 leading-tight">م. عبدالله الشهري</div>
+                    <div class="text-[10px] text-slate-400">مدير عمليات التنفيذ</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-slate-800/95 border-l border-slate-700/80 flex flex-col shrink-0 absolute lg:relative z-20 h-[calc(100vh-57px)] transition-all duration-300 -right-64 lg:right-0">
+            <div class="p-3 text-[11px] font-bold text-slate-400 tracking-wider uppercase border-b border-slate-700/50 flex justify-between items-center">
+                <span>الوحدات التشغيلية</span>
+                <span class="text-[9px] bg-sky-900/60 text-sky-300 px-1.5 py-0.5 rounded">9 وحدات</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto p-2 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-sky-400 bg-sky-900/30 border border-sky-800/50">
+                    <i class="fa-solid fa-chart-pie text-base w-5 text-center"></i>
+                    <span>لوحة التحكم القيادية</span>
+                </button>
+
+                <button onclick="switchTab('boq')" id="nav-boq" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-list-check text-base w-5 text-center"></i>
+                    <span>المشاريع وجدول الكميات (BOQ)</span>
+                </button>
+
+                <button onclick="switchTab('dpr')" id="nav-dpr" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-person-digging text-base w-5 text-center"></i>
+                        <span>التقرير الميداني اليومي (DPR)</span>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">مباشر</span>
+                </button>
+
+                <button onclick="switchTab('ppc')" id="nav-ppc" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-file-invoice-dollar text-base w-5 text-center"></i>
+                    <span>المستخلصات والدفعات (PPC)</span>
+                </button>
+
+                <button onclick="switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-truck-monster text-base w-5 text-center"></i>
+                    <span>إدارة المعدات والأسطول</span>
+                </button>
+
+                <button onclick="switchTab('hr')" id="nav-hr" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center"></i>
+                    <span>الموارد البشرية والعمالة</span>
+                </button>
+
+                <button onclick="switchTab('hse')" id="nav-hse" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-shield-halved text-base w-5 text-center"></i>
+                    <span>السلامة وتصاريح العمل (PTW)</span>
+                </button>
+
+                <button onclick="switchTab('qaqc')" id="nav-qaqc" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-diagram-project text-base w-5 text-center"></i>
+                    <span>الجودة وتنسيق الخدمات</span>
+                </button>
+
+                <button onclick="switchTab('dms')" id="nav-dms" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-700/50 hover:text-white">
+                    <i class="fa-solid fa-folder-tree text-base w-5 text-center"></i>
+                    <span>الأرشيف والمستندات (DMS)</span>
+                </button>
+            </nav>
+
+            <!-- Bottom System Status Footer -->
+            <div class="p-3 bg-slate-900/60 border-t border-slate-700/80">
+                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                    <span>معدل الإنجاز التراكمي العام</span>
+                    <span id="globalProgressText" class="font-bold text-sky-400">68.4%</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div id="globalProgressBar" class="bg-gradient-to-l from-sky-400 to-emerald-400 h-1.5 rounded-full" style="width: 68.4%"></div>
+                </div>
+                <div class="mt-2 text-[10px] text-slate-500 text-center flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span>النظام متصل بالسيرفر الميداني</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content View Area -->
+        <main class="flex-1 overflow-y-auto bg-slate-900 p-3 md:p-6">
+
+            <!-- MODULE 1: EXECUTIVE DASHBOARD -->
+            <div id="module-dashboard" class="tab-content space-y-6 animate-fadeIn">
+                <!-- Page Title / Quick Stats Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <span>لوحة التحكم القيادية والتنفيذية</span>
+                            <span class="text-xs bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-md font-bold">تحديث مباشر</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">متابعة الأداء الفني والميداني والمستخلصات لمشاريع البنية التحتية والكهرباء</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openModal('modal-new-ppc')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                            <span>إنشاء مستخلص جديد</span>
+                        </button>
+                        <button onclick="openModal('modal-new-ptw')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-passport"></i>
+                            <span>تصريح حفر جديد</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 KPI Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- KPI 1 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg relative overflow-hidden group hover:border-sky-500/50 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400">إجمالي قيمة العقود النشطة</span>
+                            <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+                                <i class="fa-solid fa-coins"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-xl font-extrabold text-white">48,500,000 <span class="text-xs font-normal text-slate-400">ر.س</span></div>
+                            <div class="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                <span>3 مشاريع قيد التنفيذ حالياً</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-sky-500/40"></div>
+                    </div>
+
+                    <!-- KPI 2 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg relative overflow-hidden group hover:border-emerald-500/50 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400">المستخلصات المعلقة لدى المالك</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-xl font-extrabold text-white">4,280,000 <span class="text-xs font-normal text-slate-400">ر.س</span></div>
+                            <div class="flex items-center gap-1.5 text-[11px] text-amber-400 mt-1">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>مستخلصان بانتظام الاعتماد النهائي</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/40"></div>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg relative overflow-hidden group hover:border-amber-500/50 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400">معدل تشغيل المعدات اليومي</span>
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                                <i class="fa-solid fa-truck-ramp-box"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-xl font-extrabold text-white">88.2%</div>
+                            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1">
+                                <i class="fa-solid fa-gauge-high text-sky-400"></i>
+                                <span>32/36 معدة تعمل بالمواقع اليوم</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/40"></div>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg relative overflow-hidden group hover:border-purple-500/50 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400">مؤشر السلامة (ساعات بدون حوادث)</span>
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-heart"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-xl font-extrabold text-white">142,800 <span class="text-xs font-normal text-slate-400">ساعة</span></div>
+                            <div class="flex items-center gap-1.5 text-[11px] text-emerald-400 mt-1">
+                                <i class="fa-solid fa-check"></i>
+                                <span>صفر حوادث هادفة (LTI) هذا الشهر</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-purple-500/40"></div>
+                    </div>
+                </div>
+
+                <!-- Middle Charts & Active Site Execution Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Chart Column: Planned vs Actual Progress (2 Cols) -->
+                    <div class="lg:col-span-2 bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4 border-b border-slate-700/60 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-sky-400"></i>
+                                    <span>مقارنة الإنجاز الفعلي مقابل المخطط (Physical Progress)</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">تمديد الكابلات، الحفر الطولي، وتثبيت المحولات - قطاع الرياض</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> المخطط</span>
+                                <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> المنفذ فعلياً</span>
+                            </div>
+                        </div>
+
+                        <!-- Custom Visual SVG Chart -->
+                        <div class="w-full h-56 flex items-end justify-between gap-3 pt-4 px-2">
+                            <!-- Month 1 -->
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                <div class="w-full flex items-end justify-center gap-1 h-full">
+                                    <div class="w-1/2 bg-sky-600/50 rounded-t h-[40%] group-hover:bg-sky-500 transition"></div>
+                                    <div class="w-1/2 bg-emerald-500 rounded-t h-[38%] group-hover:bg-emerald-400 transition"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400">يناير</span>
+                            </div>
+                            <!-- Month 2 -->
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                <div class="w-full flex items-end justify-center gap-1 h-full">
+                                    <div class="w-1/2 bg-sky-600/50 rounded-t h-[55%] group-hover:bg-sky-500 transition"></div>
+                                    <div class="w-1/2 bg-emerald-500 rounded-t h-[52%] group-hover:bg-emerald-400 transition"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400">فبراير</span>
+                            </div>
+                            <!-- Month 3 -->
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                <div class="w-full flex items-end justify-center gap-1 h-full">
+                                    <div class="w-1/2 bg-sky-600/50 rounded-t h-[70%] group-hover:bg-sky-500 transition"></div>
+                                    <div class="w-1/2 bg-emerald-500 rounded-t h-[68%] group-hover:bg-emerald-400 transition"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400">مارس</span>
+                            </div>
+                            <!-- Month 4 -->
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                <div class="w-full flex items-end justify-center gap-1 h-full">
+                                    <div class="w-1/2 bg-sky-600/50 rounded-t h-[80%] group-hover:bg-sky-500 transition"></div>
+                                    <div class="w-1/2 bg-emerald-500 rounded-t h-[75%] group-hover:bg-emerald-400 transition"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400">أبريل</span>
+                            </div>
+                            <!-- Month 5 (Current) -->
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
+                                <span class="absolute -top-5 text-[9px] font-bold text-emerald-400 bg-emerald-950 px-1 py-0.5 rounded border border-emerald-800">الحالي</span>
+                                <div class="w-full flex items-end justify-center gap-1 h-full">
+                                    <div class="w-1/2 bg-sky-600 rounded-t h-[92%]"></div>
+                                    <div id="chartBarCurrent" class="w-1/2 bg-emerald-400 rounded-t h-[86%] transition-all duration-500 shadow-lg shadow-emerald-500/20"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-sky-400">مايو</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Summary Stats Bar -->
+                        <div class="mt-4 pt-3 border-t border-slate-700/60 grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-slate-900/50 p-2 rounded-lg">
+                                <span class="text-[10px] text-slate-400 block">إجمالي الحفر طولي</span>
+                                <span id="dashTrenchMeters" class="font-extrabold text-white text-sm">12,450 م.ط</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-2 rounded-lg">
+                                <span class="text-[10px] text-slate-400 block">الكوابل المسحوبة</span>
+                                <span id="dashCableMeters" class="font-extrabold text-sky-400 text-sm">9,820 م.ط</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-2 rounded-lg">
+                                <span class="text-[10px] text-slate-400 block">إعادة الأسفلت والردم</span>
+                                <span id="dashAsphaltMeters" class="font-extrabold text-emerald-400 text-sm">11,100 م2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Live Worksite Feeds & Quick Action List -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-amber-400"></i>
+                                    <span>الاعتمادات الميدانية المعلقة</span>
+                                </h3>
+                                <span class="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full">4 مطلوبة</span>
+                            </div>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 hover:border-slate-600 transition flex items-center justify-between">
+                                    <div>
+                                        <div class="font-bold text-slate-200">طلب اعتماد مخطط Shop Drawing</div>
+                                        <div class="text-[10px] text-slate-400">تقاطع الملك فهد - كابلات جهد متوسط</div>
+                                    </div>
+                                    <button onclick="alert('تم تحويل طلب الاعتماد إلى الاستشاري المعتمد')" class="bg-sky-600/30 hover:bg-sky-600 text-sky-300 hover:text-white px-2.5 py-1 rounded text-[11px] font-bold transition">اعتماد</button>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 hover:border-slate-600 transition flex items-center justify-between">
+                                    <div>
+                                        <div class="font-bold text-slate-200">تصريح حفر طريق رئيسي (PTW-882)</div>
+                                        <div class="text-[10px] text-amber-400">يتطلب موافقة المرور والبلدية</div>
+                                    </div>
+                                    <button onclick="switchTab('hse')" class="bg-amber-600/30 hover:bg-amber-600 text-amber-300 hover:text-white px-2.5 py-1 rounded text-[11px] font-bold transition">معاينة</button>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 hover:border-slate-600 transition flex items-center justify-between">
+                                    <div>
+                                        <div class="font-bold text-slate-200">مستخلص مقاول باطن (م. السبيعي)</div>
+                                        <div class="text-[10px] text-slate-400">قيمة الأعمال: 145,000 ر.س</div>
+                                    </div>
+                                    <button onclick="switchTab('ppc')" class="bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white px-2.5 py-1 rounded text-[11px] font-bold transition">مراجعة</button>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 hover:border-slate-600 transition flex items-center justify-between">
+                                    <div>
+                                        <div class="font-bold text-slate-200">تقرير فحص كابل ميجر (Megger Test)</div>
+                                        <div class="text-[10px] text-slate-400">محول رقم T-04 / حي النرجس</div>
+                                    </div>
+                                    <button onclick="switchTab('qaqc')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1 rounded text-[11px] font-bold transition">عرض</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weather & Site Operational Status -->
+                        <div class="mt-4 p-3 bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg border border-slate-700/80 flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-sun text-amber-400 text-lg"></i>
+                                <div>
+                                    <div class="font-bold text-slate-200">حالة الطقس الميداني (الرياض)</div>
+                                    <div class="text-[10px] text-slate-400">34°C - مشمس / مناسب لأعمال الحفر والردم</div>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded text-[10px]">المواقع نشطة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Section: Active Projects Table Summary -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-sky-400"></i>
+                            <span>حالة المشاريع الجارية ونسب الإنجاز المقارنة</span>
+                        </h3>
+                        <button onclick="switchTab('boq')" class="text-sky-400 hover:text-sky-300 text-xs font-bold">عرض تفاصيل جدول الكميات والبنود &larr;</button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs text-slate-300">
+                            <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-700 font-bold">
+                                <tr>
+                                    <th class="p-3">اسم المشروع</th>
+                                    <th class="p-3">المالك / الاستشاري</th>
+                                    <th class="p-3">قيمة العقد</th>
+                                    <th class="p-3">الإنجاز المادي</th>
+                                    <th class="p-3">الإنجاز المالي</th>
+                                    <th class="p-3">الحالة التشغيلية</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50">
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">تمديد كابلات الجهد المتوسط 33 ك.ف - القطاع 4</td>
+                                    <td class="p-3">الشركة السعودية للكهرباء / م. خطيب وعلمي</td>
+                                    <td class="p-3 font-semibold">24,500,000 ر.س</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-sky-500 h-2 rounded-full" style="width: 72%"></div>
+                                            </div>
+                                            <span class="font-bold text-sky-400">72%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 65%"></div>
+                                            </div>
+                                            <span class="font-bold text-emerald-400">65%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">منتظم وفي الموعد</span></td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">إنارة وإعادة تأهيل طرق المجمعة الرئيسية</td>
+                                    <td class="p-3">أمانة منطقة الرياض / المكتب الاستشاري السعودي</td>
+                                    <td class="p-3 font-semibold">12,000,000 ر.س</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-sky-500 h-2 rounded-full" style="width: 88%"></div>
+                                            </div>
+                                            <span class="font-bold text-sky-400">88%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 82%"></div>
+                                            </div>
+                                            <span class="font-bold text-emerald-400">82%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">مرحلة التسليم المبدئي</span></td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">شبكة الاتصالات والألياف الضوئية FTTH - حي الشاطئ</td>
+                                    <td class="p-3">شركة الاتصالات السعودية (STC) / استشاري الفنار</td>
+                                    <td class="p-3 font-semibold">12,000,000 ر.س</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-amber-500 h-2 rounded-full" style="width: 41%"></div>
+                                            </div>
+                                            <span class="font-bold text-amber-400">41%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-slate-700 rounded-full h-2">
+                                                <div class="bg-amber-500 h-2 rounded-full" style="width: 35%"></div>
+                                            </div>
+                                            <span class="font-bold text-amber-400">35%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold">تأخير تصاريح حفر</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 2: PROJECT & BOQ HUB -->
+            <div id="module-boq" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-sky-400"></i>
+                            <span>إدارة المشاريع وجداول الكميات والتسعير (BOQ)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">تفكيك بنود الحفر، السحب، الردم، والمحولات مع تتبع الكميات المخططة والمنفذة</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" placeholder="بحث في بنود الـ BOQ..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 w-48">
+                        <button onclick="alert('تم تصدير جدول الكميات بصيغة Excel')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                            <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                            <span>تصدير Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BOQ Table -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-3 bg-slate-900/60 border-b border-slate-700 flex justify-between items-center text-xs">
+                        <span class="font-bold text-sky-400">جدول الكميات المعتمد - مشروع كابلات الجهد المتوسط (الرياض)</span>
+                        <span class="text-slate-400">إجمالي البنود: 6 بنود رئيسية</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 border-b border-slate-700 font-bold uppercase">
+                                <tr>
+                                    <th class="p-3">رقم البند</th>
+                                    <th class="p-3">وصف البند التفصيلي</th>
+                                    <th class="p-3">الوحدة</th>
+                                    <th class="p-3">الكمية التعاقدية</th>
+                                    <th class="p-3">السعر الإفرادي</th>
+                                    <th class="p-3">الإجمالي التعاقدي</th>
+                                    <th class="p-3">المنفذ حتى تاريخه</th>
+                                    <th class="p-3">نسبة الإنجاز</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50">
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.01</td>
+                                    <td class="p-3 font-semibold text-white">حفر طولي بعمق 1.2م وعرض 0.6م في مختلف أنواع التربة مع نزو المياه وتجهيز الفرشة الترابية</td>
+                                    <td class="p-3">م.ط</td>
+                                    <td class="p-3 font-bold">15,000</td>
+                                    <td class="p-3">120 ر.س</td>
+                                    <td class="p-3 font-bold text-white">1,800,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold" id="boq-executed-1">12,450</td>
+                                    <td class="p-3">
+                                        <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded" id="boq-pct-1">83.0%</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.02</td>
+                                    <td class="p-3 font-semibold text-white">توريد وسحب كابلات نحاسية جهد متوسط 33 ك.ف مقطع 3x300 مم2 داخل الأنابيب المعتمدة</td>
+                                    <td class="p-3">م.ط</td>
+                                    <td class="p-3 font-bold">13,500</td>
+                                    <td class="p-3">450 ر.س</td>
+                                    <td class="p-3 font-bold text-white">6,075,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold" id="boq-executed-2">9,820</td>
+                                    <td class="p-3">
+                                        <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded" id="boq-pct-2">72.7%</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.03</td>
+                                    <td class="p-3 font-semibold text-white">توريد وتركيب أنابيب بلاستيكية مقواة HDPE قطر 160مم لحماية الكابلات تحت الطرق</td>
+                                    <td class="p-3">م.ط</td>
+                                    <td class="p-3 font-bold">15,000</td>
+                                    <td class="p-3">85 ر.س</td>
+                                    <td class="p-3 font-bold text-white">1,275,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold">13,100</td>
+                                    <td class="p-3">
+                                        <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">87.3%</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.04</td>
+                                    <td class="p-3 font-semibold text-white">أعمال إعادة الردم بطبقات الرمل النظيف والتكبيك والدمك بشدة 95% طبقاً للمواصفات</td>
+                                    <td class="p-3">م3</td>
+                                    <td class="p-3 font-bold">10,800</td>
+                                    <td class="p-3">65 ر.س</td>
+                                    <td class="p-3 font-bold text-white">702,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold">8,900</td>
+                                    <td class="p-3">
+                                        <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded">82.4%</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.05</td>
+                                    <td class="p-3 font-semibold text-white">إعادة كشط ورص الطبقة الأسفلتية الحاملة والسطحية سمك 5سم وإعادة الخطوط المرورية</td>
+                                    <td class="p-3">م2</td>
+                                    <td class="p-3 font-bold">18,000</td>
+                                    <td class="p-3">95 ر.س</td>
+                                    <td class="p-3 font-bold text-white">1,710,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold" id="boq-executed-5">11,100</td>
+                                    <td class="p-3">
+                                        <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded" id="boq-pct-5">61.6%</span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-sky-400">1.06</td>
+                                    <td class="p-3 font-semibold text-white">توريد وتركيب محطات تحويل مدمجة (Package Substation) قدرة 1000 ك.ف.أ شاملة المفاتيح</td>
+                                    <td class="p-3">عدد</td>
+                                    <td class="p-3 font-bold">12</td>
+                                    <td class="p-3">220,000 ر.س</td>
+                                    <td class="p-3 font-bold text-white">2,640,000 ر.س</td>
+                                    <td class="p-3 text-emerald-400 font-bold">8</td>
+                                    <td class="p-3">
+                                        <span class="bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded">66.6%</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-slate-900 font-bold text-white border-t-2 border-slate-700">
+                                <tr>
+                                    <td colspan="5" class="p-3 text-left">إجمالي القيمة الإجمالية لبنود العقد الرئيسية:</td>
+                                    <td class="p-3 text-sky-400">14,202,000 ر.س</td>
+                                    <td colspan="2" class="p-3 text-emerald-400 text-left">المكافئ المالي المنفذ: 10,215,400 ر.س (71.9%)</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 3: DAILY SITE PROGRESS (DPR) -->
+            <div id="module-dpr" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-person-digging text-amber-400"></i>
+                            <span>التقرير الميداني اليومي لتنفيذ الموقع (DPR)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">إدخال واعتماد كميات الحفر وسحب الكابلات اليومية مع الربط الفوري باللائحة والمستخلصات</p>
+                    </div>
+                    <button onclick="openModal('modal-new-dpr')" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-amber-600/30">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>إدخال كميات اليوم (تسجيل ميداني)</span>
+                    </button>
+                </div>
+
+                <!-- Recent DPR Submissions Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Column 1: Live Interactive Entry Form -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg">
+                        <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                            <i class="fa-solid fa-pen-to-square text-sky-400"></i>
+                            <span>تعديل سريع لكميات اليوم بالموقع</span>
+                        </h3>
+                        <form id="dprQuickForm" onsubmit="handleDprSubmit(event)" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-slate-400 mb-1 font-bold">الموقع / القطاع التنفيذي</label>
+                                <select class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                                    <option>شارع التخصصي - المقطع رقم (04)</option>
+                                    <option>طريق عثمان بن عفان - المقطع (02)</option>
+                                    <option>حي النرجس - خط التغذية الرئيسي</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1 font-bold">كمية الحفر الطولي اليومية (م.ط)</label>
+                                <input type="number" id="inputDailyTrench" value="150" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-sm focus:border-sky-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1 font-bold">كمية سحب الكابلات اليومية (م.ط)</label>
+                                <input type="number" id="inputDailyCable" value="200" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-sm focus:border-sky-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1 font-bold">إعادة الأسفلت والردم اليومي (م2)</label>
+                                <input type="number" id="inputDailyAsphalt" value="120" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-sm focus:border-sky-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1 font-bold">العمالة والمعدات بالموقع اليوم</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" value="18 عامل / 2 مهندس" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-300">
+                                    <input type="text" value="3 حفارات / 2 دكاك" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-300">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg transition shadow-md mt-2 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>حفظ وترحيل للإنجاز التراكمي</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Column 2 & 3: History & Recent Reports Feed -->
+                    <div class="lg:col-span-2 bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg">
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-700 pb-2">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
+                                <span>سجل التقارير الميدانية الأخيرة (DPR History)</span>
+                            </h3>
+                            <span class="text-[11px] text-slate-400">آخر إدخال: اليوم، 08:30 صباحاً</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- DPR Log Item 1 -->
+                            <div class="p-3 bg-slate-900/70 border border-slate-700/80 rounded-lg hover:border-sky-500/50 transition">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2 mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-sky-500/20 text-sky-400 font-extrabold text-xs px-2 py-0.5 rounded">DPR-2026-089</span>
+                                        <span class="text-xs font-bold text-white">شارع التخصصي - المقطع (04)</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 flex items-center gap-2">
+                                        <span><i class="fa-regular fa-calendar ml-1"></i>28 مايو 2026</span>
+                                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded">معتمد من الاستشاري</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 text-xs mb-2 text-slate-300">
+                                    <div><span class="text-slate-500 block text-[10px]">حفر طولي:</span> <strong class="text-white">180 م.ط</strong></div>
+                                    <div><span class="text-slate-500 block text-[10px]">سحب كابلات:</span> <strong class="text-sky-400">220 م.ط</strong></div>
+                                    <div><span class="text-slate-500 block text-[10px]">ردم وأسفلت:</span> <strong class="text-emerald-400">140 م2</strong></div>
+                                </div>
+
+                                <div class="flex items-center justify-between text-[11px] text-slate-400 bg-slate-800/60 p-2 rounded">
+                                    <span>ملاحظات الميدان: تم إكمال قطع الأسفلت وتمديد الأنابيب بحضور مهندس السلامة.</span>
+                                    <button class="text-sky-400 hover:text-sky-300 font-bold">معاينة المرفقات (3 صور)</button>
+                                </div>
+                            </div>
+
+                            <!-- DPR Log Item 2 -->
+                            <div class="p-3 bg-slate-900/70 border border-slate-700/80 rounded-lg hover:border-sky-500/50 transition">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2 mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-sky-500/20 text-sky-400 font-extrabold text-xs px-2 py-0.5 rounded">DPR-2026-088</span>
+                                        <span class="text-xs font-bold text-white">طريق عثمان بن عفان - المقطع (02)</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 flex items-center gap-2">
+                                        <span><i class="fa-regular fa-calendar ml-1"></i>27 مايو 2026</span>
+                                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded">معتمد من الاستشاري</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 text-xs mb-2 text-slate-300">
+                                    <div><span class="text-slate-500 block text-[10px]">حفر طولي:</span> <strong class="text-white">140 م.ط</strong></div>
+                                    <div><span class="text-slate-500 block text-[10px]">سحب كابلات:</span> <strong class="text-sky-400">190 م.ط</strong></div>
+                                    <div><span class="text-slate-500 block text-[10px]">ردم وأسفلت:</span> <strong class="text-emerald-400">110 م2</strong></div>
+                                </div>
+
+                                <div class="flex items-center justify-between text-[11px] text-slate-400 bg-slate-800/60 p-2 rounded">
+                                    <span>ملاحظات الميدان: تعارض مع خط مياه قديم وتم التنسيق مع شركة المياه للتحويل.</span>
+                                    <button class="text-sky-400 hover:text-sky-300 font-bold">معاينة المرفقات (2 صور)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 4: PROGRESS PAYMENTS (PPC) -->
+            <div id="module-ppc" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                            <span>المستخلصات والدفعات المرحلية (Progress Payment Certificates)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">احتساب الخصومات الآلية: خصم الدفعة المقدمة، النسبة المقتطعة 5% لحسن التنفيذ، صافي الاستحقاق</p>
+                    </div>
+                    <button onclick="openModal('modal-new-ppc')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>إنشاء مستخلص جديد (أحدث دورة)</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Calculator Preview Container -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 shadow-lg">
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                        <div>
+                            <span class="text-xs text-sky-400 font-bold block">مستخلص المالك الجاري رقم #05</span>
+                            <h3 class="text-base font-extrabold text-white">مشروع كابلات الجهد المتوسط 33 ك.ف - الرياض</h3>
+                        </div>
+                        <span class="bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">تحت اعتماد الاستشاري النهائي</span>
+                    </div>
+
+                    <!-- Live Dynamic PPC Form Table -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left 2 Cols: Itemized Quantities -->
+                        <div class="md:col-span-2 space-y-3 text-xs">
+                            <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider">بنود المستخلص الحالية (تعديل الكميات يحسب التكلفة تلقائياً):</h4>
+
+                            <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-700 space-y-2">
+                                <div class="flex justify-between font-bold text-white">
+                                    <span>بند 1.01: حفر طولي عمق 1.2م</span>
+                                    <span class="text-sky-400">120 ر.س / م.ط</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-slate-400">
+                                    <div>الكمية السابقة: <strong class="text-slate-200">10,000</strong></div>
+                                    <div>
+                                        الكمية الحالية:
+                                        <input type="number" id="ppcQty1" value="2450" oninput="calculatePpcNet()" class="w-20 bg-slate-800 border border-slate-600 text-white text-center rounded px-1 py-0.5 font-bold">
+                                    </div>
+                                    <div class="text-left">الإجمالي: <strong id="ppcTotal1" class="text-emerald-400">294,000 ر.س</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-700 space-y-2">
+                                <div class="flex justify-between font-bold text-white">
+                                    <span>بند 1.02: توريد وسحب كابلات نحاسية 33 ك.ف</span>
+                                    <span class="text-sky-400">450 ر.س / م.ط</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-slate-400">
+                                    <div>الكمية السابقة: <strong class="text-slate-200">7,500</strong></div>
+                                    <div>
+                                        الكمية الحالية:
+                                        <input type="number" id="ppcQty2" value="2320" oninput="calculatePpcNet()" class="w-20 bg-slate-800 border border-slate-600 text-white text-center rounded px-1 py-0.5 font-bold">
+                                    </div>
+                                    <div class="text-left">الإجمالي: <strong id="ppcTotal2" class="text-emerald-400">1,044,000 ر.س</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Col: Automated Deductions Breakdown Panel -->
+                        <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between text-xs space-y-3">
+                            <h4 class="font-extrabold text-white border-b border-slate-700 pb-2 text-xs">ملخص الاحتساب والخصومات الآلية</h4>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-slate-300">
+                                    <span>إجمالي الأعمال الحالية:</span>
+                                    <span id="ppcGross" class="font-bold text-white">1,338,000 ر.س</span>
+                                </div>
+
+                                <div class="flex justify-between text-slate-400">
+                                    <span>استرداد دفعة مقدمة (10%):</span>
+                                    <span id="ppcAdvance" class="font-bold text-rose-400">-133,800 ر.س</span>
+                                </div>
+
+                                <div class="flex justify-between text-slate-400">
+                                    <span>حجز حسن تنفيذ (Retainage 5%):</span>
+                                    <span id="ppcRetainage" class="font-bold text-rose-400">-66,900 ر.س</span>
+                                </div>
+
+                                <div class="flex justify-between text-slate-400">
+                                    <span>ضريبة القيمة المضافة (VAT 15%):</span>
+                                    <span id="ppcVat" class="font-bold text-sky-400">+170,595 ر.س</span>
+                                </div>
+
+                                <div class="border-t border-slate-700 pt-2 flex justify-between text-sm font-extrabold">
+                                    <span class="text-white">صافي المبلغ المستحق للصرف:</span>
+                                    <span id="ppcNetTotal" class="text-emerald-400 text-base">1,307,895 ر.س</span>
+                                </div>
+                            </div>
+
+                            <button onclick="alert('تم اعتماد المستخلص وإرساله للقسم المالي للإيعاز بالصرف')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg transition shadow-md">
+                                اعتماد المستخلص وإصدار المطالبة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 5: FLEET & EQUIPMENT -->
+            <div id="module-fleet" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-truck-monster text-amber-400"></i>
+                            <span>إدارة أسطول المعدات والمشغلات الميدانية</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">تتبع الحفارات، الضاغطات، المولدات، مع مراقبة استهلاك الديزل وساعات تشغيل المحرك</p>
+                    </div>
+                    <span class="text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg font-bold">إجمالي الأسطول: 36 معدة</span>
+                </div>
+
+                <!-- Equipment Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Machine 1 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-sky-500/50 transition space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
+                                    <i class="fa-solid fa-truck-pickup"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">حفار كاتر بيلار CAT-320</h4>
+                                    <span class="text-[10px] text-slate-400">كود: EQ-EXC-01</span>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded">تعمل بالموقع</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">ساعات المحرك (Hours)</span>
+                                <strong class="text-white">1,420 ساعة</strong>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">استهلاك الديزل اليومي</span>
+                                <strong class="text-amber-400">180 لتر/يوم</strong>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 flex justify-between items-center pt-1">
+                            <span>الموقع: شارع التخصصي - المقطع 4</span>
+                            <span class="text-sky-400 font-bold">سائق: أحمد خليل</span>
+                        </div>
+                    </div>
+
+                    <!-- Machine 2 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-sky-500/50 transition space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded bg-sky-500/20 text-sky-400 flex items-center justify-center font-black">
+                                    <i class="fa-solid fa-industry"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">مولد كهربائي كاتبريلار 500KVA</h4>
+                                    <span class="text-[10px] text-slate-400">كود: EQ-GEN-04</span>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded">تعمل بالموقع</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">ساعات المحرك (Hours)</span>
+                                <strong class="text-white">3,890 ساعة</strong>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">استهلاك الديزل اليومي</span>
+                                <strong class="text-amber-400">320 لتر/يوم</strong>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 flex justify-between items-center pt-1">
+                            <span>الموقع: حي النرجس - المحطة الرئيسي</span>
+                            <span class="text-sky-400 font-bold">فني: محمود علي</span>
+                        </div>
+                    </div>
+
+                    <!-- Machine 3 -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-rose-500/50 transition space-y-3 border-r-4 border-r-rose-500">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">
+                                    <i class="fa-solid fa-wrench"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">دكاك أسفلت وتربة Dynapac</h4>
+                                    <span class="text-[10px] text-slate-400">كود: EQ-CMP-02</span>
+                                </div>
+                            </div>
+                            <span class="bg-rose-500/20 text-rose-400 text-[10px] font-bold px-2 py-0.5 rounded">تحت الصيانة الطارئة</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">ساعات المحرك (Hours)</span>
+                                <strong class="text-white">2,150 ساعة</strong>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded">
+                                <span class="text-[10px] text-slate-400 block">حالة غيار الزيت</span>
+                                <strong class="text-rose-400">تجاوز 200 ساعة</strong>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 flex justify-between items-center pt-1">
+                            <span>الموقع: الورشة المركزية</span>
+                            <button onclick="alert('تم طلب غيار قطع غيار زيت وفلاتر هيدروليك')" class="text-rose-400 hover:text-rose-300 font-bold">طلب قطع غيار</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 6: WORKFORCE & HR -->
+            <div id="module-hr" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users-gear text-sky-400"></i>
+                            <span>شؤون العمالة والكوادر الميدانية (Site HR)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">توزيع الطواقم وتتبع الحضور الجغرافي (Geo-fencing) وحساب الأوفرتايم</p>
+                    </div>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg font-bold">48 عامل وفني متواجد بالشرائح الميدانية اليوم</span>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 border-b border-slate-700 font-bold">
+                                <tr>
+                                    <th class="p-3">اسم الموظف / العامل</th>
+                                    <th class="p-3">المهنة المسجلة</th>
+                                    <th class="p-3">الموقع الحالي</th>
+                                    <th class="p-3">تسجيل الحضور (Geo-Fence)</th>
+                                    <th class="p-3">ساعات الأوفرتايم</th>
+                                    <th class="p-3">تاريخ انتهاء الإقامة/التأمين</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50">
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">كومار ناتاراجان</td>
+                                    <td class="p-3">فني سحب كابلات جهد متوسط</td>
+                                    <td class="p-3">قطاع التخصصي - الرياض</td>
+                                    <td class="p-3"><span class="text-emerald-400 font-bold"><i class="fa-solid fa-location-dot ml-1"></i>حاضر (06:55 ص)</span></td>
+                                    <td class="p-3 font-bold text-amber-400">2.5 ساعة</td>
+                                    <td class="p-3 text-slate-400">14-11-2027</td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">سليم خان الباكستاني</td>
+                                    <td class="p-3">سائق حفار ثقيل</td>
+                                    <td class="p-3">طريق عثمان بن عفان</td>
+                                    <td class="p-3"><span class="text-emerald-400 font-bold"><i class="fa-solid fa-location-dot ml-1"></i>حاضر (07:02 ص)</span></td>
+                                    <td class="p-3 font-bold text-amber-400">3.0 ساعات</td>
+                                    <td class="p-3 text-slate-400">02-08-2026</td>
+                                </tr>
+
+                                <tr class="hover:bg-slate-700/30 transition">
+                                    <td class="p-3 font-bold text-white">محمد عبدالمتعال</td>
+                                    <td class="p-3">مهندس موقع بنية تحتية</td>
+                                    <td class="p-3">حي النرجس</td>
+                                    <td class="p-3"><span class="text-emerald-400 font-bold"><i class="fa-solid fa-location-dot ml-1"></i>حاضر (06:45 ص)</span></td>
+                                    <td class="p-3 font-bold text-slate-400">0.0 ساعة</td>
+                                    <td class="p-3 text-slate-400">19-01-2028</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 7: HSE & PTW -->
+            <div id="module-hse" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-rose-400"></i>
+                            <span>السلامة والصحة المهنية وتصاريح العمل (HSE & PTW)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">إصدار تصاريح الحفر الطولي، الأعمال الساخنة، وتقارير اجتماعات السلامة (Toolbox Talks)</p>
+                    </div>
+                    <button onclick="openModal('modal-new-ptw')" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-rose-600/30">
+                        <i class="fa-solid fa-passport"></i>
+                        <span>إصدار تصريح عمل جديد (PTW)</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Active PTWs Panel -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg space-y-3">
+                        <h3 class="text-sm font-bold text-white border-b border-slate-700 pb-2 flex justify-between items-center">
+                            <span>تصاريح العمل النشطة الميدانية (Active PTWs)</span>
+                            <span class="text-xs text-emerald-400 font-bold">2 سارية</span>
+                        </h3>
+
+                        <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-700 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-rose-500/20 text-rose-300 font-bold text-xs px-2 py-0.5 rounded">PTW-EXC-901</span>
+                                <span class="text-emerald-400 text-xs font-bold">ساري حتى 18:00 اليوم</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs">تصريح حفر عميق - قطع شارع رئيسي (التخصصي)</h4>
+                            <p class="text-[11px] text-slate-400">شروط السلامة: توفير صبات خرسانية، إشارات ضوئية، ملابس عاكسة، وفحص أجهزة كشف الكابلات تحت الأرض.</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-700 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-amber-500/20 text-amber-300 font-bold text-xs px-2 py-0.5 rounded">PTW-HOT-402</span>
+                                <span class="text-emerald-400 text-xs font-bold">ساري</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs">تصريح أعمال سكب أسفلت وسريع السخونة</h4>
+                            <p class="text-[11px] text-slate-400">شروط السلامة: طفايات حريق متوفرة بقرب الفرادة، أحذية حرارية للطاقم.</p>
+                        </div>
+                    </div>
+
+                    <!-- Toolbox Talks Log -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg space-y-3">
+                        <h3 class="text-sm font-bold text-white border-b border-slate-700 pb-2">سجل المحاضرات التوعوية الصباحية (Toolbox Talks - TBT)</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-white">مخاطر انهيار جوانب الحفر الترابي</div>
+                                    <div class="text-[10px] text-slate-400">تاريخ: اليوم 06:45 ص / الحضور: 22 عامل</div>
+                                </div>
+                                <span class="text-sky-400 font-bold">مُوثق بالصور</span>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-white">التعامل الآمن مع كابلات الجهد العالي التالفة</div>
+                                    <div class="text-[10px] text-slate-400">تاريخ: يوم أمس / الحضور: 18 عامل</div>
+                                </div>
+                                <span class="text-sky-400 font-bold">مُوثق بالصور</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 8: QA/QC & UTILITIES -->
+            <div id="module-qaqc" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-amber-400"></i>
+                            <span>ضبط الجودة وتنسيق تقاطعات البنية التحتية</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">تتبع كشوفات عدم المطابقة (NCR)، نتائج فحوصات الكابلات (Megger Test)، وتصاريح أمانة المنطقة</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Non Conformance Reports -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg space-y-3">
+                        <h3 class="text-sm font-bold text-white border-b border-slate-700 pb-2">تقارير عدم المطابقة (NCR Reports)</h3>
+                        <div class="p-3 bg-slate-900/80 rounded-lg border-r-4 border-r-rose-500 space-y-1 text-xs">
+                            <div class="flex justify-between font-bold">
+                                <span class="text-rose-400">NCR-2026-012</span>
+                                <span class="text-slate-400">صادر من: استشاري المشروع</span>
+                            </div>
+                            <p class="font-bold text-white">عدم الالتزام بنسبة الدمك المطلوبة (95%) في المقطع 02</p>
+                            <p class="text-[11px] text-slate-400">الإجراء التصحيحي: إعادة دك الطبقة ورش الماء واستدعاء المختبر لإعادة الفحص.</p>
+                        </div>
+                    </div>
+
+                    <!-- Lab Test Reports -->
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg space-y-3">
+                        <h3 class="text-sm font-bold text-white border-b border-slate-700 pb-2">نتائج الفحوصات المختبرية والفنية</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-white">فحص عزل الكابلات (Megger High Voltage)</div>
+                                    <div class="text-[10px] text-slate-400">كابل 33 ك.ف - القطاع 4</div>
+                                </div>
+                                <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded">ناجح (PASSED)</span>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-white">اختبار دك التربة (Compaction Test)</div>
+                                    <div class="text-[10px] text-slate-400">عينة رقم S-88 / عمق 80سم</div>
+                                </div>
+                                <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded">96.8% (ناجح)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 9: DMS & ARCHIVAL -->
+            <div id="module-dms" class="tab-content hidden space-y-6 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/60 border border-slate-700/70 p-4 rounded-xl">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-folder-tree text-sky-400"></i>
+                            <span>الأرشيف المركزي وتتبع الوثائق الرسمية (DMS)</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">متابعة صلاحية السجلات والتصنيف وتأمين التأمينات الاجتماعية مع تنبيهات التجديد</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 shadow-lg">
+                    <h3 class="text-sm font-bold text-white mb-3">حالة الوثائق والسجلات الرسمية للمؤسسة</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                        <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg">
+                            <span class="text-slate-400 block text-[10px]">السجل التجاري الرئيسي</span>
+                            <strong class="text-white text-sm block my-1">CR-101089201</strong>
+                            <span class="bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded text-[10px]">ساري (متبقي 310 يوم)</span>
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg">
+                            <span class="text-slate-400 block text-[10px]">شهادة تصنيف المقاولين</span>
+                            <strong class="text-white text-sm block my-1">الدرجة الأولى - بنية تحتية</strong>
+                            <span class="bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded text-[10px]">سارية</span>
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg">
+                            <span class="text-slate-400 block text-[10px]">شهادة السعودة والالتزام</span>
+                            <strong class="text-white text-sm block my-1">النطاق المرتفع (الأخضر)</strong>
+                            <span class="bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded text-[10px]">مكتمل</span>
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg border-r-4 border-r-amber-500">
+                            <span class="text-slate-400 block text-[10px]">تأمين أخطار المقاولين (CAR)</span>
+                            <strong class="text-white text-sm block my-1">شركة التعاونية للتأمين</strong>
+                            <span class="bg-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded text-[10px]">تجديد خلال 22 يوماً</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: NEW DPR ENTRY -->
+    <div id="modal-new-dpr" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn">
+            <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-person-digging text-amber-400"></i>
+                    <span>تسجيل تقرير ميداني جديد (DPR)</span>
+                </h3>
+                <button onclick="closeModal('modal-new-dpr')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 mb-1 font-bold">اسم المشروع</label>
+                    <select class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                        <option>مشروع كابلات الجهد المتوسط - الرياض (القطاع 4)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 mb-1 font-bold">الحفر الطولي (م.ط)</label>
+                        <input type="number" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1 font-bold">سحب كابلات (م.ط)</label>
+                        <input type="number" value="150" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-300 mb-1 font-bold">ملاحظات وسبب التأخير إن وجد</label>
+                    <textarea class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white h-20" placeholder="مثال: تم إغلاق الشارع جزئياً وحضور استشاري الموقع..."></textarea>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-900/60 border-t border-slate-700 flex justify-end gap-2">
+                <button onclick="closeModal('modal-new-dpr')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-bold">إلغاء</button>
+                <button onclick="closeModal('modal-new-dpr'); alert('تم رفع التقرير الميداني بنجاح وتحين المؤشرات');" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold">إرسال للإنهاء والاعتماد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: NEW PPC GENERATOR -->
+    <div id="modal-new-ppc" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn">
+            <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                    <span>توليد مستخلص مرحلي جديد (PPC)</span>
+                </h3>
+                <button onclick="closeModal('modal-new-ppc')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+                <p class="text-slate-300">سيقوم النظام بتجميع الكميات المعتمدة تلقائياً من تقارير الموقع اليومية (DPR) من تاريخ آخر مستخلص وحتى اليوم.</p>
+                <div class="p-3 bg-slate-900 rounded-lg space-y-1">
+                    <div class="flex justify-between text-slate-300"><span>الفترة المالية:</span><strong class="text-white">01 مايو 2026 - 31 مايو 2026</strong></div>
+                    <div class="flex justify-between text-slate-300"><span>الكميات المجمعة للحفر:</span><strong class="text-sky-400">2,450 م.ط</strong></div>
+                    <div class="flex justify-between text-slate-300"><span>الكميات المجمعة للكابلات:</span><strong class="text-sky-400">2,320 م.ط</strong></div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-900/60 border-t border-slate-700 flex justify-end gap-2">
+                <button onclick="closeModal('modal-new-ppc')" class="px-4 py-2 bg-slate-700 text-slate-200 rounded-lg text-xs font-bold">إلغاء</button>
+                <button onclick="closeModal('modal-new-ppc'); switchTab('ppc');" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold">توليد وعرض المستخلص</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: NEW PTW PERMIT -->
+    <div id="modal-new-ptw" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl animate-fadeIn">
+            <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-extrabold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-passport text-rose-400"></i>
+                    <span>إصدار تصريح عمل ميداني (Permit to Work)</span>
+                </h3>
+                <button onclick="closeModal('modal-new-ptw')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 mb-1 font-bold">نوع تصريح العمل المطلوب</label>
+                    <select class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                        <option>تصريح حفر طولي عميق (Excavation PTW)</option>
+                        <option>تصريح أعمال ساخنة ولحام (Hot Work PTW)</option>
+                        <option>تصريح دخول أماكن مغلقة (Confined Space)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-300 mb-1 font-bold">الموقع المحدد للعمل</label>
+                    <input type="text" placeholder="مثال: تقاطع شارع التخصصي مع العروبة" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+            </div>
+            <div class="p-4 bg-slate-900/60 border-t border-slate-700 flex justify-end gap-2">
+                <button onclick="closeModal('modal-new-ptw')" class="px-4 py-2 bg-slate-700 text-slate-200 rounded-lg text-xs font-bold">إلغاء</button>
+                <button onclick="closeModal('modal-new-ptw'); alert('تم التقديم على تصريح حفر وإشعارات مسؤول السلامة');" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold">إصدار التصريح</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vanilla Javascript Logic -->
+    <script>
+        // Module Navigation Switcher
+        function switchTab(tabId) {
+            // Hide all modules
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Remove active states from side menu
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('text-sky-400', 'bg-sky-900/30', 'border', 'border-sky-800/50');
+                el.classList.add('text-slate-300');
+            });
+
+            // Show current module
+            const targetModule = document.getElementById('module-' + tabId);
+            if (targetModule) {
+                targetModule.classList.remove('hidden');
+            }
+
+            // Highlight side menu item
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('text-sky-400', 'bg-sky-900/30', 'border', 'border-sky-800/50');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            // Mobile close sidebar
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-right-64');
+                document.getElementById('sidebar').classList.remove('right-0');
+            }
+        }
+
+        // Toggle Mobile Sidebar
+        document.getElementById('toggleMobileSidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('-right-64')) {
+                sidebar.classList.remove('-right-64');
+                sidebar.classList.add('right-0');
+            } else {
+                sidebar.classList.add('-right-64');
+                sidebar.classList.remove('right-0');
+            }
+        });
+
+        // Notifications Toggle
+        function toggleNotifications() {
+            const menu = document.getElementById('notificationMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Modal Controls
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Project Context Switcher
+        function switchProjectContext(val) {
+            alert("تم تغيير سياق البيانات الميدانية والمستخلصات إلى المشروع المSelected");
+        }
+
+        // DPR Quick Entry Submission Handler (Live State Update)
+        function handleDprSubmit(e) {
+            e.preventDefault();
+            const trenchAdd = parseInt(document.getElementById('inputDailyTrench').value) || 0;
+            const cableAdd = parseInt(document.getElementById('inputDailyCable').value) || 0;
+            const asphaltAdd = parseInt(document.getElementById('inputDailyAsphalt').value) || 0;
+
+            // Update BOQ & Dashboard Values
+            const boqTrenchEl = document.getElementById('boq-executed-1');
+            const currentTrench = parseInt(boqTrenchEl.textContent.replace(/,/g, '')) + trenchAdd;
+            boqTrenchEl.textContent = currentTrench.toLocaleString();
+            document.getElementById('dashTrenchMeters').textContent = currentTrench.toLocaleString() + ' م.ط';
+
+            const boqCableEl = document.getElementById('boq-executed-2');
+            const currentCable = parseInt(boqCableEl.textContent.replace(/,/g, '')) + cableAdd;
+            boqCableEl.textContent = currentCable.toLocaleString();
+            document.getElementById('dashCableMeters').textContent = currentCable.toLocaleString() + ' م.ط';
+
+            const boqAsphaltEl = document.getElementById('boq-executed-5');
+            const currentAsphalt = parseInt(boqAsphaltEl.textContent.replace(/,/g, '')) + asphaltAdd;
+            boqAsphaltEl.textContent = currentAsphalt.toLocaleString();
+            document.getElementById('dashAsphaltMeters').textContent = currentAsphalt.toLocaleString() + ' م2';
+
+            // Animate Chart & Global Bar
+            document.getElementById('chartBarCurrent').style.height = '94%';
+            document.getElementById('globalProgressBar').style.width = '70.2%';
+            document.getElementById('globalProgressText').textContent = '70.2%';
+
+            alert('تم تسجيل كميات اليوم بنجاح وتحديث جداول الـ BOQ واللوحة القيادية بـ ' + trenchAdd + ' م.ط حفر جديد!');
+        }
+
+        // Progress Payment Calculator (PPC) Logic
+        function calculatePpcNet() {
+            const qty1 = parseFloat(document.getElementById('ppcQty1').value) || 0;
+            const qty2 = parseFloat(document.getElementById('ppcQty2').value) || 0;
+
+            const total1 = qty1 * 120;
+            const total2 = qty2 * 450;
+
+            document.getElementById('ppcTotal1').textContent = total1.toLocaleString() + ' ر.س';
+            document.getElementById('ppcTotal2').textContent = total2.toLocaleString() + ' ر.س';
+
+            const gross = total1 + total2;
+            const advance = gross * 0.10;
+            const retainage = gross * 0.05;
+            const vat = (gross - advance - retainage) * 0.15;
+            const net = (gross - advance - retainage) + vat;
+
+            document.getElementById('ppcGross').textContent = gross.toLocaleString() + ' ر.س';
+            document.getElementById('ppcAdvance').textContent = '-' + advance.toLocaleString() + ' ر.س';
+            document.getElementById('ppcRetainage').textContent = '-' + retainage.toLocaleString() + ' ر.س';
+            document.getElementById('ppcVat').textContent = '+' + Math.round(vat).toLocaleString() + ' ر.س';
+            document.getElementById('ppcNetTotal').textContent = Math.round(net).toLocaleString() + ' ر.س';
+        }
+    </script>
+</body>
+</html>
