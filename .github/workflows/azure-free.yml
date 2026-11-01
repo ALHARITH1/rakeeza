@@ -1,0 +1,25 @@
+name: Deploy Rakeeza to Azure Free
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'online2/**'
+      - '.github/workflows/azure-free.yml'
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish prebuilt connected app
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.RAKEEZA_AZURE_DEPLOY_TOKEN }}
+          action: upload
+          app_location: online2
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true
+          production_branch: main
