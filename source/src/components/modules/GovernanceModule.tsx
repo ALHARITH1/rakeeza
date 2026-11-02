@@ -53,7 +53,7 @@ function GuideBlock({guide}:{guide:PaperGuide|undefined}){
 }
 export function GovernanceModule(){
  const api=useContext(ModuleApi);
- const {serverCommands,currentUser,company}=usePlatform();
+ const {serverCommands,currentUser,company,companyDocs,projects}=usePlatform();
  const [records,setRecords]=useState<Rec[]>([]);
  const [form,setForm]=useState<any>({});
  const [error,setError]=useState(''),[status,setStatus]=useState(''),[busy,setBusy]=useState(false);
@@ -73,6 +73,11 @@ export function GovernanceModule(){
  const startRegister=(p:GovPaper)=>{setEditing(null);setForm({paperType:p.id,title:p.name,issuingAuthority:p.issuer,renewalCycle:p.renewal,alertDays:'30',notes:''});setOpen(true);window.scrollTo(0,0)};
  const list=records.filter(r=>!search||JSON.stringify(r.body).includes(search)).sort((a,b)=>{const ea=a.body.expiryDate,eb=b.body.expiryDate;if(!ea&&!eb)return 0;if(!ea)return 1;if(!eb)return -1;return ea.localeCompare(eb)});
  const save=(e:React.FormEvent)=>{e.preventDefault();const b={...form};if(b.paperType!=='custom'){const p=paper(b.paperType);if(p){b.title=p.name;b.renewalCycle=p.renewal;if(!b.issuingAuthority)b.issuingAuthority=p.issuer}}run(()=>api(editing?'modules.update':'modules.create',{kind:'govdoc',projectId:'',body:b,...(editing?{id:editing.id,revision:editing.revision}:{})}),'حُفظ السجل على الخادم').then(ok=>{if(ok){setOpen(false);setEditing(null);setForm({})}})};
+ const setLinks=(x:Rec,b:any)=>run(()=>api('modules.update',{kind:'govdoc',id:x.id,revision:x.revision,body:b}),'حُفظ الربط على الخادم');
+ const linkDoc=(x:Rec,id:string)=>{const d=(companyDocs||[]).find((c:any)=>c.id===id);if(!d)return;const cur=x.body.linkedDocs||[];if(cur.some((l:any)=>l.id===id))return;setLinks(x,{...x.body,linkedDocs:[...cur,{id:d.id,title:d.title}]})};
+ const unlinkDoc=(x:Rec,id:string)=>setLinks(x,{...x.body,linkedDocs:(x.body.linkedDocs||[]).filter((l:any)=>l.id!==id)});
+ const linkProj=(x:Rec,id:string)=>{const pr=(projects||[]).find((c:any)=>c.id===id);if(!pr)return;const cur=x.body.linkedProjects||[];if(cur.some((l:any)=>l.id===id))return;setLinks(x,{...x.body,linkedProjects:[...cur,{id:pr.id,name:pr.name}]})};
+ const unlinkProj=(x:Rec,id:string)=>setLinks(x,{...x.body,linkedProjects:(x.body.linkedProjects||[]).filter((l:any)=>l.id!==id)});
  const fileAdd=(x:Rec,f:File)=>run(async()=>{if(f.size>2000000)throw Error('حد الملف ٢ ميجابايت');const data=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=reject;r.readAsDataURL(f)});await api('modules.file.add',{id:x.id,revision:x.revision,filename:f.name,mime:f.type||'text/plain',base64:data})},'حُفظ الملف الخاص على الخادم');
  const getFile=(x:Rec,f:any)=>run(async()=>{const out=await api('modules.file.get',{id:f.id});const raw=atob(out.base64.replace(/\s/g,''));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([Uint8Array.from(raw,c=>c.charCodeAt(0))],{type:out.mime}));a.download=out.filename;a.click()},'نُزّل الملف من الخادم');
  return <section dir="rtl" className="space-y-4">
@@ -129,6 +134,24 @@ export function GovernanceModule(){
    {canWrite&&<label className="border rounded p-2 cursor-pointer">إرفاق نسخة (٢MB)<input className="hidden" type="file" accept=".pdf,.jpg,.jpeg,.png,.txt,.csv" disabled={busy} onChange={e=>{const f=e.target.files?.[0];if(f)fileAdd(x,f);e.target.value=''}}/></label>}
   </div>
   {x.files?.map(f=><button key={f.id} className="block underline text-sky-300 text-sm" disabled={busy} onClick={()=>getFile(x,f)}>{f.filename} ({Math.ceil(f.size/1024)} KB) - تنزيل خاص</button>)}
+  <div className="border border-slate-700 rounded p-3 space-y-2 text-sm">
+   <p className="text-xs text-slate-400">الربط داخل ركيزة (اختياري): مستندات الأرشيف الرسمي والمشاريع المرتبطة بهذه الورقة.</p>
+   <div className="flex flex-wrap gap-2">
+    {(x.body.linkedDocs||[]).map((l:any)=><span key={l.id} className="border border-sky-600 rounded px-2 py-1 text-xs">أرشيف: {l.title}{canWrite&&<button className="text-rose-300 mr-1" onClick={()=>unlinkDoc(x,l.id)}> ×</button>}</span>)}
+    {(x.body.linkedProjects||[]).map((l:any)=><span key={l.id} className="border border-emerald-600 rounded px-2 py-1 text-xs">مشروع: {l.name}{canWrite&&<button className="text-rose-300 mr-1" onClick={()=>unlinkProj(x,l.id)}> ×</button>}</span>)}
+    {!(x.body.linkedDocs||[]).length&&!(x.body.linkedProjects||[]).length&&<span className="text-xs text-slate-500">لا روابط بعد.</span>}
+   </div>
+   {canWrite&&<div className="grid sm:grid-cols-2 gap-2">
+    <select aria-label="ربط مستند" className={input} value="" disabled={busy} onChange={e=>{if(e.target.value)linkDoc(x,e.target.value)}}>
+     <option value="">ربط مستند من الأرشيف الرسمي...</option>
+     {(companyDocs||[]).filter((d:any)=>!(x.body.linkedDocs||[]).some((l:any)=>l.id===d.id)).map((d:any)=><option key={d.id} value={d.id}>{d.title}</option>)}
+    </select>
+    <select aria-label="ربط مشروع" className={input} value="" disabled={busy} onChange={e=>{if(e.target.value)linkProj(x,e.target.value)}}>
+     <option value="">ربط مشروع...</option>
+     {(projects||[]).filter((pr:any)=>!(x.body.linkedProjects||[]).some((l:any)=>l.id===pr.id)).map((pr:any)=><option key={pr.id} value={pr.id}>{pr.name}</option>)}
+    </select>
+   </div>}
+  </div>
   <GuideBlock guide={PAPER_GUIDES[x.body.paperType||'']}/>
   <details><summary className="text-sm cursor-pointer">سجل الإجراءات</summary>{(x.body.history||[]).map((h:any,i:number)=><p className="text-xs text-slate-400" key={i}>{({create:'تسجيل',edit:'تعديل','file.add':'إرفاق ملف'} as any)[h.action]||h.action} - {h.name} - {new Date(h.at).toLocaleString('ar-SA')}</p>)}</details>
  </article>})}
