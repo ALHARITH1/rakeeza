@@ -3,6 +3,7 @@ import {usePlatform} from '../../context/PlatformContext';
 import {ModuleApi} from '../../ModuleHub';
 import {PAPER_GUIDES,QUAL_ENTITIES} from './governanceData';
 import {TendersSection,GuaranteesSection} from './GovernanceExtras';
+import {TemplateLibrary} from './TemplateLibrary';
 
 type GovPaper={id:string;name:string;issuer:string;renewal:string;note:string};
 export const GOV_PAPERS:GovPaper[]=[
@@ -170,6 +171,7 @@ export function GovernanceModule(){
 
  <GuaranteesSection/>
  <TendersSection/>
+ <TemplateLibrary/>
  <h2 className="font-bold">تأهيل الجهات الكبرى</h2>
  <p className="text-xs text-slate-400">متطلبات التسجيل والتأهيل الشائعة لدى كبرى الجهات والشركات؛ تحقق من بوابة كل جهة عند التقديم فالمتطلبات تُحدَّث.</p>
  <div className="grid sm:grid-cols-2 gap-3">
