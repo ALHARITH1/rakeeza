@@ -1,6 +1,7 @@
 import React,{useContext,useEffect,useRef,useState} from 'react';
 import {usePlatform} from '../../context/PlatformContext';
 import {ModuleApi} from '../../ModuleHub';
+import {PAPER_GUIDES,QUAL_ENTITIES} from './governanceData';
 
 type GovPaper={id:string;name:string;issuer:string;renewal:string;note:string};
 export const GOV_PAPERS:GovPaper[]=[
@@ -36,6 +37,19 @@ function statusOf(b:any):{key:string;label:string;cls:string}{
  if(d<0)return {key:'expired',label:'منتهية منذ '+(-d)+' يوم',cls:'border-rose-500 text-rose-300'};
  if(d<=warn)return {key:'expiring',label:'تنتهي خلال '+d+' يوم',cls:'border-amber-500 text-amber-300'};
  return {key:'valid',label:'سارية ('+d+' يوم)',cls:'border-emerald-500 text-emerald-300'};
+}
+import type {PaperGuide} from './governanceData';
+function GuideBlock({guide}:{guide:PaperGuide|undefined}){
+ if(!guide)return null;
+ return <details className="text-sm border border-slate-700 rounded p-3 space-y-2">
+  <summary className="cursor-pointer font-bold">دليل الاستخراج والتجديد</summary>
+  <div className="pt-2 space-y-2">
+   <p className="text-xs text-slate-400">الجهة/البوابة: {guide.portal} · الرسوم: {guide.fees}</p>
+   <div><p className="text-xs text-slate-400 mb-1">المتطلبات الشائعة:</p><ul className="list-disc pr-5 space-y-1">{guide.requirements.map((r,i)=><li key={i}>{r}</li>)}</ul></div>
+   <div><p className="text-xs text-slate-400 mb-1">الخطوات:</p><ol className="list-decimal pr-5 space-y-1">{guide.steps.map((r,i)=><li key={i}>{r}</li>)}</ol></div>
+   <p className="text-xs text-slate-500">المعلومات استرشادية؛ تحقق من متطلبات الجهة الحالية عند التقديم.</p>
+  </div>
+ </details>;
 }
 export function GovernanceModule(){
  const api=useContext(ModuleApi);
@@ -115,6 +129,7 @@ export function GovernanceModule(){
    {canWrite&&<label className="border rounded p-2 cursor-pointer">إرفاق نسخة (٢MB)<input className="hidden" type="file" accept=".pdf,.jpg,.jpeg,.png,.txt,.csv" disabled={busy} onChange={e=>{const f=e.target.files?.[0];if(f)fileAdd(x,f);e.target.value=''}}/></label>}
   </div>
   {x.files?.map(f=><button key={f.id} className="block underline text-sky-300 text-sm" disabled={busy} onClick={()=>getFile(x,f)}>{f.filename} ({Math.ceil(f.size/1024)} KB) - تنزيل خاص</button>)}
+  <GuideBlock guide={PAPER_GUIDES[x.body.paperType||'']}/>
   <details><summary className="text-sm cursor-pointer">سجل الإجراءات</summary>{(x.body.history||[]).map((h:any,i:number)=><p className="text-xs text-slate-400" key={i}>{({create:'تسجيل',edit:'تعديل','file.add':'إرفاق ملف'} as any)[h.action]||h.action} - {h.name} - {new Date(h.at).toLocaleString('ar-SA')}</p>)}</details>
  </article>})}
  <h2 className="font-bold">دليل الأوراق — غير مسجلة بعد ({unregistered.length})</h2>
@@ -124,8 +139,20 @@ export function GovernanceModule(){
    <h3 className="font-bold">{p.name}</h3>
    <p className="text-xs text-slate-400">{p.issuer} · التجديد: {p.renewal}</p>
    <p className="text-sm">{p.note}</p>
+   <GuideBlock guide={PAPER_GUIDES[p.id]}/>
    {canWrite&&<button className="text-amber-300 underline text-sm" onClick={()=>startRegister(p)}>تسجيل هذه الورقة</button>}
   </div>)}
+ </div>
+
+ <h2 className="font-bold">تأهيل الجهات الكبرى</h2>
+ <p className="text-xs text-slate-400">متطلبات التسجيل والتأهيل الشائعة لدى كبرى الجهات والشركات؛ تحقق من بوابة كل جهة عند التقديم فالمتطلبات تُحدَّث.</p>
+ <div className="grid sm:grid-cols-2 gap-3">
+  {QUAL_ENTITIES.map(q=><details key={q.id} className="border border-slate-700 rounded p-4 space-y-2">
+   <summary className="cursor-pointer font-bold">{q.name}</summary>
+   <p className="text-xs text-slate-400 pt-2">البوابة: {q.portal}</p>
+   <p className="text-sm">{q.note}</p>
+   <ul className="list-disc pr-5 space-y-1 text-sm">{q.requirements.map((r,i)=><li key={i}>{r}</li>)}</ul>
+  </details>)}
  </div>
  </section>;
 }
