@@ -1,10 +1,11 @@
 /* Rakeeza visual system based on the owner's approved Qiwa references.
    Presentation only: no account, permission or business-data changes. */
-@font-face{font-family:'Cairo';src:url('../public/fonts/cairo-Cairo[slnt,wght].ttf') format('truetype');font-display:swap;font-weight:200 1000;font-style:normal}
+@font-face{font-family:'Rakeeza Flow';src:url('../public/fonts/RakeezaFlow-Medium.ttf') format('truetype');font-display:swap;font-weight:400 500;font-style:normal}
+@font-face{font-family:'Rakeeza Flow';src:url('../public/fonts/RakeezaFlow-Bold.ttf') format('truetype');font-display:swap;font-weight:600 900;font-style:normal}
 @font-face{font-family:'Inter';src:url('../public/fonts/inter-Inter[opsz,wght].ttf') format('truetype');font-display:swap;font-weight:100 900;font-style:normal;unicode-range:U+0000-024F,U+1E00-1EFF}
 :root{--rq-ground:#f3f5f7;--rq-card:#fff;--rq-ink:#101419;--rq-muted:#59646e;--rq-border:#d9dfe4;--rq-input:#fff;--rq-blue:#18558b;--rq-blue-ink:#fff;--rq-row:#f6f8fa;color-scheme:light}
 :root[data-theme=dark]{--rq-ground:#060809;--rq-card:#101315;--rq-ink:#f3f5f7;--rq-muted:#b3bdc5;--rq-border:#535d66;--rq-input:#111518;--rq-blue:#89bee2;--rq-blue-ink:#102536;--rq-row:#191e22;color-scheme:dark}
-html:not(.high-contrast) body,html:not(.high-contrast) body *:not(code):not(pre):not(.font-mono):not(.tabular-nums){font-family:'Inter','Cairo',Arial,sans-serif;letter-spacing:normal}
+html:not(.high-contrast) body,html:not(.high-contrast) body *:not(code):not(pre):not(.font-mono):not(.tabular-nums){font-family:'Inter','Rakeeza Flow',Arial,sans-serif;letter-spacing:normal}
 html:not(.high-contrast) body{background:var(--rq-ground);color:var(--rq-ink)}
 html:not(.high-contrast) [class*="bg-slate-950"]{background-color:var(--rq-ground)}
 html:not(.high-contrast) [class*="bg-slate-900"]{background-color:var(--rq-card)}
@@ -58,8 +59,8 @@ html:not(.high-contrast) .rakeeza-hero [class*="text-slate-950"]{color:var(--rq-
 html:not(.high-contrast) main,html:not(.high-contrast) section{color:var(--rq-ink)}
 html:not(.high-contrast) .rakeeza-hero{color:white}
 
-/* Approved typography: Cairo Medium for Arabic body, Black for display titles;
+/* Approved typography: Rakeeza Flow Medium for Arabic body, Bold for display titles;
    Inter covers Latin and Western digits without changing bidi isolation. */
 html:not(.high-contrast) body{font-weight:500}
-html:not(.high-contrast) h1,html:not(.high-contrast) h2{font-weight:900}
-html:not(.high-contrast) .font-mono,html:not(.high-contrast) .tabular-nums,html:not(.high-contrast) code,html:not(.high-contrast) pre{font-family:'Inter','Cairo',monospace;font-variant-numeric:tabular-nums}
+html:not(.high-contrast) h1,html:not(.high-contrast) h2{font-weight:700}
+html:not(.high-contrast) .font-mono,html:not(.high-contrast) .tabular-nums,html:not(.high-contrast) code,html:not(.high-contrast) pre{font-family:'Inter','Rakeeza Flow',monospace;font-variant-numeric:tabular-nums}
