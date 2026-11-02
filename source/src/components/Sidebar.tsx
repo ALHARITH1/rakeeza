@@ -33,7 +33,8 @@ import {
   UserPlus,
   History,
   MapPinned,
-  Palette
+  Palette,
+  ScrollText
 } from 'lucide-react';
 import { NumBdi } from './common/NumBdi';
 
@@ -122,6 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile })
         items: [
           { id: 'hr', label: 'الموارد البشرية ونهاية الخدمة', icon: Users2 },
           { id: 'dms', label: 'الأرشيف والمستندات الرسمية (DMS)', icon: FolderArchive },
+          { id: 'gov', label: 'الحوكمة والأوراق الحكومية', icon: ScrollText },
           { id: 'crm', label: 'دليل الشركاء والموردين', icon: Contact2 },
           { id: 'company', label: 'هوية الشركة', icon: Palette },
           { id: 'users', label: 'المستخدمون والدعوات', icon: UserPlus },

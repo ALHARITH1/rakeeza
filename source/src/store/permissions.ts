@@ -40,12 +40,12 @@ export const internalRoles: UserRole[] = [
 export type TabId =
   | 'dashboard' | 'boq' | 'tendering' | 'dpr' | 'fleet' | 'utilities' | 'spoils' | 'emergency'
   | 'ppc' | 'procurement' | 'subcontractors' | 'hse' | 'training' | 'qaqc' | 'handover'
-  | 'hr' | 'dms' | 'crm' | 'security' | 'users' | 'audit' | 'rfi' | 'team' | 'journey' | 'company'
+  | 'hr' | 'dms' | 'crm' | 'gov' | 'security' | 'users' | 'audit' | 'rfi' | 'team' | 'journey' | 'company'
   | 'worker_portal' | 'owner_portal' | 'consultant_portal' | 'sub_portal' | 'supplier_portal';
 
 const ALL_INTERNAL: TabId[] = [
   'dashboard', 'boq', 'tendering', 'dpr', 'fleet', 'utilities', 'spoils', 'emergency', 'ppc',
-  'procurement', 'subcontractors', 'hse', 'training', 'qaqc', 'handover', 'hr', 'dms', 'crm',
+  'procurement', 'subcontractors', 'hse', 'training', 'qaqc', 'handover', 'hr', 'dms', 'crm', 'gov',
   'security', 'rfi', 'team', 'journey', 'company', 'users', 'audit'
 ];
 
@@ -53,13 +53,13 @@ export const roleTabs: Record<UserRole, TabId[]> = {
   executive_director: ALL_INTERNAL,
   project_manager: [
     'dashboard', 'boq', 'tendering', 'dpr', 'rfi', 'team', 'journey', 'fleet', 'utilities', 'spoils', 'emergency',
-    'ppc', 'procurement', 'subcontractors', 'hse', 'training', 'qaqc', 'handover', 'dms', 'crm'
+    'ppc', 'procurement', 'subcontractors', 'hse', 'training', 'qaqc', 'handover', 'dms', 'crm', 'gov'
   ],
   site_engineer: ['dpr', 'rfi', 'procurement', 'team', 'journey', 'utilities', 'spoils', 'emergency'],
-  safety_officer: ['hse', 'training', 'emergency', 'utilities', 'journey'],
-  qaqc_manager: ['qaqc', 'handover', 'rfi', 'dms'],
-  procurement_mgr: ['procurement', 'crm', 'subcontractors'],
-  hr_manager: ['hr', 'team', 'journey', 'training'],
+  safety_officer: ['hse', 'training', 'emergency', 'utilities', 'journey', 'gov'],
+  qaqc_manager: ['qaqc', 'handover', 'rfi', 'dms', 'gov'],
+  procurement_mgr: ['procurement', 'crm', 'subcontractors', 'gov'],
+  hr_manager: ['hr', 'team', 'journey', 'training', 'gov'],
   worker: ['worker_portal'],
   owner: ['owner_portal'],
   consultant: ['consultant_portal', 'dpr', 'rfi', 'qaqc', 'ppc', 'tendering'],
@@ -128,6 +128,7 @@ export const tabLabels: Record<TabId, string> = {
   hr: 'الموارد البشرية',
   dms: 'الأرشيف والمستندات',
   crm: 'دليل الشركاء والموردين',
+  gov: 'الحوكمة والأوراق الحكومية',
   security: 'الصلاحيات ومسارات الاعتماد',
   users: 'المستخدمون والدعوات',
   audit: 'سجل التدقيق',

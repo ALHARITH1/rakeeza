@@ -35,6 +35,7 @@ import { InfrastructureCoordination } from './components/modules/InfrastructureC
 import { SpoilsBorrowPits } from './components/modules/SpoilsBorrowPits';
 import { EmergencyCrisis } from './components/modules/EmergencyCrisis';
 import { DocumentArchive } from './components/modules/DocumentArchive';
+import { GovernanceModule } from './components/modules/GovernanceModule';
 import { TenderingRisk } from './components/modules/TenderingRisk';
 import { CrmStakeholders } from './components/modules/CrmStakeholders';
 import { SecurityWorkflows } from './components/modules/SecurityWorkflows';
@@ -116,6 +117,7 @@ export function MainApp() {
     spoils: <SpoilsBorrowPits />,
     emergency: <EmergencyCrisis />,
     dms: serverCommands?<ModuleHub kind="document"/>:<DocumentArchive />,
+    gov: <GovernanceModule />,
     tendering: serverCommands ? <VariationOrders /> : <TenderingRisk />,
     crm: serverCommands?<ModuleHub kind="contact"/>:<CrmStakeholders />,
     security: <SecurityWorkflows />,
@@ -132,7 +134,7 @@ export function MainApp() {
     supplier_portal: <SupplierPortal />
   };
 
-  const needsProject = !['company', 'users', 'audit', 'security', 'dms', 'crm', 'boq', 'hr', 'team', 'journey', 'worker_portal'].includes(activeTab);
+  const needsProject = !['company', 'users', 'audit', 'security', 'dms', 'crm', 'gov', 'boq', 'hr', 'team', 'journey', 'worker_portal'].includes(activeTab);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 overflow-x-hidden">
