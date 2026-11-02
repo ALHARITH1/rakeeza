@@ -1,0 +1,58 @@
+/* Rakeeza visual system based on the owner's approved Qiwa references.
+   Presentation only: no account, permission or business-data changes. */
+@font-face{font-family:Rakeeza Arabic;src:url('../public/rakeeza-arabic.ttf') format('truetype');font-display:swap;font-weight:100 900}
+:root{--rq-ground:#f3f5f7;--rq-card:#fff;--rq-ink:#101419;--rq-muted:#59646e;--rq-border:#d9dfe4;--rq-input:#fff;--rq-blue:#18558b;--rq-blue-ink:#fff;--rq-row:#f6f8fa;color-scheme:light}
+:root[data-theme=dark]{--rq-ground:#060809;--rq-card:#101315;--rq-ink:#f3f5f7;--rq-muted:#b3bdc5;--rq-border:#535d66;--rq-input:#111518;--rq-blue:#89bee2;--rq-blue-ink:#102536;--rq-row:#191e22;color-scheme:dark}
+html:not(.high-contrast) body,html:not(.high-contrast) body *:not(code):not(pre):not(.font-mono):not(.tabular-nums){font-family:'Rakeeza Arabic',Arial,sans-serif;letter-spacing:normal}
+html:not(.high-contrast) body{background:var(--rq-ground);color:var(--rq-ink)}
+html:not(.high-contrast) [class*="bg-slate-950"]{background-color:var(--rq-ground)}
+html:not(.high-contrast) [class*="bg-slate-900"]{background-color:var(--rq-card)}
+html:not(.high-contrast) [class*="bg-slate-800"]{background-color:var(--rq-row)}
+html:not(.high-contrast) [class*="border-slate-"]{border-color:var(--rq-border)}
+html:not(.high-contrast) [class*="text-white"],html:not(.high-contrast) [class*="text-slate-100"],html:not(.high-contrast) [class*="text-slate-200"]{color:var(--rq-ink)}
+html:not(.high-contrast) [class*="text-slate-300"],html:not(.high-contrast) [class*="text-slate-400"],html:not(.high-contrast) [class*="text-slate-500"]{color:var(--rq-muted)}
+html:not(.high-contrast) [class*="text-amber-"]{color:var(--rq-blue)}
+html:not(.high-contrast) [class*="border-amber-"]{border-color:var(--rq-blue)}
+html:not(.high-contrast) [class*="bg-amber-500"]{background:var(--rq-blue);color:var(--rq-blue-ink)}
+html:not(.high-contrast) [class*="bg-amber-500/"]{background:color-mix(in srgb,var(--rq-blue) 9%,transparent);color:var(--rq-blue)}
+html:not(.high-contrast) [class*="text-emerald-"]{color:#127558}
+html:not(.high-contrast)[data-theme=dark] [class*="text-emerald-"]{color:#73dfb9}
+html:not(.high-contrast) [class*="text-rose-"]{color:#b82440}
+html:not(.high-contrast)[data-theme=dark] [class*="text-rose-"]{color:#ff8fa4}
+html:not(.high-contrast) [class*="text-sky-"]{color:var(--rq-blue)}
+html:not(.high-contrast) input:not([type=checkbox]):not([type=radio]):not([type=color]),html:not(.high-contrast) select,html:not(.high-contrast) textarea{background:var(--rq-input);color:var(--rq-ink);border:1px solid var(--rq-border);border-radius:4px;min-height:42px;padding:10px 12px}
+button,a,input,select,textarea{touch-action:manipulation}
+:focus-visible{outline:2px solid var(--rq-blue);outline-offset:3px}
+html:not(.high-contrast) [class*="rounded-3xl"],html:not(.high-contrast) [class*="rounded-2xl"]{border-radius:10px}
+html:not(.high-contrast) [class*="shadow-2xl"]{box-shadow:0 2px 8px #0000000d}
+html:not(.high-contrast) [class*="text-[10px]"],html:not(.high-contrast) [class*="text-[11px]"]{font-size:12px;line-height:1.8}
+html:not(.high-contrast) table{border-collapse:collapse;width:100%;font-size:13px}
+html:not(.high-contrast) thead,html:not(.high-contrast) th{background:var(--rq-border);color:var(--rq-ink);font-weight:600}
+html:not(.high-contrast) td,html:not(.high-contrast) th{padding:14px 12px;border-bottom:1px solid var(--rq-border)}
+html:not(.high-contrast) tbody tr{background:var(--rq-card)}
+html:not(.high-contrast) tbody tr:nth-child(even){background:var(--rq-row)}
+html:not(.high-contrast) aside{border-left:1px solid var(--rq-border);background:var(--rq-card)}
+html:not(.high-contrast) h1{font-weight:700;line-height:1.6}
+.rakeeza-wordmark{display:inline-flex;width:112px;max-width:30vw;flex-shrink:0;align-items:center;vertical-align:middle}
+.rakeeza-wordmark img{width:100%;height:52px;object-fit:contain}
+.rakeeza-wordmark.compact{width:80px}.rakeeza-wordmark.compact img{height:36px}
+.brand-dark{display:none}:root[data-theme=dark] .brand-light{display:none}:root[data-theme=dark] .brand-dark{display:block}
+.rakeeza-theme-toggle{border:1px solid var(--rq-border);border-radius:5px;padding:8px 10px;min-height:38px;font-size:12px;white-space:nowrap;color:var(--rq-ink);background:var(--rq-card)}
+.rakeeza-landing>header{background:var(--rq-card)!important;backdrop-filter:none}
+.rakeeza-hero{background:#1d2d38;color:white}.rakeeza-hero [class*="bg-gradient"]{display:none}
+html:not(.high-contrast) .rakeeza-hero [class*="text-white"],html:not(.high-contrast) .rakeeza-hero [class*="text-slate-"]{color:#f4f7fa}
+html:not(.high-contrast) .rakeeza-hero [class*="text-amber-"]{color:#a9d3ef}
+html:not(.high-contrast) .rakeeza-hero [class*="bg-slate-"]{background:#263945}
+html:not(.high-contrast) .rakeeza-hero [class*="border-slate-"]{border-color:#4a5b67}
+html:not(.high-contrast) .rakeeza-auth{padding:28px;background:var(--rq-card);border:1px solid var(--rq-border);border-radius:9px}
+html:not(.high-contrast) [role=status][class*="border-emerald-"]{background:#effdf6;color:#11664a;border-color:#b8dfce}
+@media(max-width:640px){.rakeeza-landing header button{font-size:11px;padding:8px}.rakeeza-wordmark{width:90px}.rakeeza-auth{padding:20px!important}h1{overflow-wrap:break-word}}
+@media print{.rakeeza-theme-toggle{display:none}}
+html:not(.high-contrast) [class*="bg-white"]{background-color:var(--rq-card)}
+html:not(.high-contrast) [class*="bg-slate-100"],html:not(.high-contrast) [class*="bg-slate-200"],html:not(.high-contrast) [class*="bg-slate-50"]{background-color:var(--rq-row)}
+html:not(.high-contrast) [class*="text-slate-600"],html:not(.high-contrast) [class*="text-slate-700"],html:not(.high-contrast) [class*="text-slate-800"],html:not(.high-contrast) [class*="text-slate-900"]{color:var(--rq-ink)}
+html:not(.high-contrast) main [class*="bg-gradient"]{background-image:none;background-color:var(--rq-card)}
+html:not(.high-contrast) .rakeeza-hero [class*="text-emerald-"]{color:#8be5c3}
+html:not(.high-contrast) .rakeeza-hero [class*="text-slate-950"]{color:var(--rq-blue-ink)}
+html:not(.high-contrast) main,html:not(.high-contrast) section{color:var(--rq-ink)}
+html:not(.high-contrast) .rakeeza-hero{color:white}

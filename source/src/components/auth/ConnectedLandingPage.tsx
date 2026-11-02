@@ -1,3 +1,4 @@
+import {BrandLogo,ThemeToggle} from '../BrandLogo';
 import React from 'react';
 import {
   HardHat, LogIn, MapPin, Building2, FileCheck2, Receipt, ShoppingBag, ShieldAlert, Users2, Landmark, Stamp,
@@ -36,20 +37,14 @@ export const ConnectedLandingPage: React.FC<Props> = ({ onLogin, onRegister, onA
   const brand = { name: 'ركيزة', logoDataUrl: './rakeeza-icon.png' };
   const name = brand?.name ?? 'منصة إدارة عمليات المقاولات';
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100" dir="rtl">
+    <div className="rakeeza-landing min-h-screen bg-slate-950 text-slate-100" dir="rtl">
       {/* Top bar */}
       <header className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            {brand?.logoDataUrl
-              ? <img src={brand.logoDataUrl} alt={name} className="w-10 h-10 rounded-xl object-contain bg-white shrink-0" />
-              : <span className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0"><HardHat className="w-5 h-5 text-amber-400" /></span>}
-            <div className="min-w-0">
-              <div className="text-sm font-black text-white truncate">{name}</div>
-              <div className="text-[10px] text-slate-400 hidden sm:block">إدارة عمليات المقاولات والبنية التحتية</div>
-            </div>
+            <BrandLogo />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0"><ThemeToggle/>
             <button onClick={onAttendance} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/10">
               <MapPin className="w-4 h-4" /> بوابة الحضور
             </button>
@@ -61,7 +56,7 @@ export const ConnectedLandingPage: React.FC<Props> = ({ onLogin, onRegister, onA
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="rakeeza-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/15 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-6xl mx-auto px-4 py-14 sm:py-20 grid lg:grid-cols-2 gap-10 items-center relative">
           <div>

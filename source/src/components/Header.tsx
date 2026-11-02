@@ -1,3 +1,4 @@
+import {BrandLogo,ThemeToggle} from './BrandLogo';
 import React, { useEffect, useRef, useState } from 'react';
 import { usePlatform } from '../context/PlatformContext';
 import {
@@ -121,9 +122,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewDpr, onOpenPrintReport,
             {company?.logoDataUrl ? (
               <img src={company.logoDataUrl} alt={company.name} className="w-9 h-9 rounded-xl object-contain bg-white shrink-0" />
             ) : (
-              <span className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
-                <HardHat className="w-5 h-5" />
-              </span>
+              <BrandLogo className="compact"/>
             )}
             <span className="hidden sm:block text-right min-w-0">
               <span className="block text-sm font-black text-white leading-tight truncate max-w-[200px]">{company?.name}</span>
@@ -139,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewDpr, onOpenPrintReport,
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0"><ThemeToggle/>
           {can('finance.view') && (
             <button onClick={onOpenPrintReport} className="hidden lg:flex px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 text-xs font-semibold items-center gap-1.5 border border-slate-700/60" title="التقرير الشامل">
               <Printer className="w-3.5 h-3.5" /> <span className="hidden xl:inline">تقرير شامل</span>

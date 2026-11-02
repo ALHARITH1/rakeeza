@@ -1,1 +1,1 @@
-import {createRoot} from 'react-dom/client';import OnlineAppV2 from './OnlineAppV2';import './index.css';createRoot(document.getElementById('root')!).render(<OnlineAppV2/>);
+import {createRoot} from 'react-dom/client';import OnlineAppV2 from './OnlineAppV2';import './index.css';import './qiwa-system.css';createRoot(document.getElementById('root')!).render(<OnlineAppV2/>);
